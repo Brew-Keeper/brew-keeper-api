@@ -21,14 +21,17 @@ from api import views as api_views
 
 router = routers.SimpleRouter()
 
-# router.register(r'users', api_views.UserViewSet)
-router.register(r'recipes', api_views.UserViewSet)
+router.register(r'recipes', api_views.RecipeViewSet)
 
-users_router = routers.NestedSimpleRouter(router,
-                                          r'users',
-                                          lookup='user')
-users_router.register(r'recipes',
-                      api_views.RecipeViewSet)
+recipes_router = routers.NestedSimpleRouter(router,
+                                            r'recipes',
+                                            lookup='recipe')
+recipes_router.register(r'steps',
+                        api_views.StepViewSet)
+
+recipes_router.register(r'brew_notes',
+                        api_views.BrewNoteViewSet)
+
 
 
 urlpatterns = [
@@ -36,7 +39,7 @@ urlpatterns = [
 
     url(r'^docs/', include('rest_framework_swagger.urls')),
 
-    url(r'^api/users/1/', include(router.urls)),
+    url(r'^api/users/don\.pablo/', include(router.urls)),
 
     # url(r'^api/', include(users_router.urls)),
 
