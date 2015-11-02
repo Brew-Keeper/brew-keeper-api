@@ -1,0 +1,28 @@
+user/:user_id/
+
+{
+  "username": "don.pablo",
+  "user_id": 1,
+  "recipe_list": [
+    {
+      "id": 1,
+      "title": "The Original",
+      "bean_name": "Don Pablo Medium Roast",
+      "roast": "Medium",
+      "rating": 5,
+      "last_brewed_on": "2015-11-2",
+      "created_on": "2012-8-6",
+      "public_status": true
+    },
+    {
+      "id": 2,
+      "title": "Tweaked Original",
+      "bean_name": "Don Pablo Medium Roast",
+      "roast": "Medium",
+      "rating": 4,
+      "last_brewed_on": "2015-10-20",
+      "created_on": "2012-8-6",
+      "public_status": false
+    }
+  ]
+}
