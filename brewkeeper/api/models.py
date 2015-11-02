@@ -34,3 +34,10 @@ class Step(models.Model):
     step_detail = models.Charfield(max_length=255)
     duration = models.PositiveSmallIntegerField()
     water_amount = models.PositiveSmallIntegerField()
+
+
+class Brewnote(models.Model):
+    recipe = models.ForeignKey(Recipe)
+    body = models.TextField()
+    timestamp = models.DateTimeField(auto_now=True)
+    
