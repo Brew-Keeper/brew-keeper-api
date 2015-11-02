@@ -23,14 +23,14 @@ router = routers.SimpleRouter()
 
 router.register(r'recipes', api_views.RecipeViewSet)
 
-recipes_router = routers.NestedSimpleRouter(router,
-                                            r'recipes',
-                                            lookup='recipe')
-recipes_router.register(r'steps',
-                        api_views.StepViewSet)
-
-recipes_router.register(r'brew_notes',
-                        api_views.BrewNoteViewSet)
+# recipes_router = routers.NestedSimpleRouter(router,
+#                                             r'recipes',
+#                                             lookup='recipe')
+# recipes_router.register(r'steps',
+#                         api_views.StepViewSet)
+#
+# recipes_router.register(r'brew_notes',
+#                         api_views.BrewNoteViewSet)
 
 
 
