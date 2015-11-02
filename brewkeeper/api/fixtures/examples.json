@@ -55,6 +55,7 @@ users/:user_id/
       "recipe_id": 1,
       "step_title": "Pour",
       "step_body": "Pour slowly, using side-to-side motion to ensure no dry spots",
+      "step_number": 1,
       "duration": 10,
       "water_amount": 1
     },
@@ -63,6 +64,7 @@ users/:user_id/
       "recipe_id": 1,
       "step_title": "Bloom",
       "step_body": "Do not stir",
+      "step_number": 2,
       "duration": 35,
       "water_amount": 0
     },
@@ -71,6 +73,7 @@ users/:user_id/
       "recipe_id": 1,
       "step_title": "Pour",
       "step_body": "Pour medium at first, using side-to-side motion to ensure even distribution, then hard pour rest of water",
+      "step_number": 3,
       "duration": 10,
       "water_amount": 3
     },
@@ -79,6 +82,7 @@ users/:user_id/
       "recipe_id": 1,
       "step_title": "Steep",
       "step_body": "Do not stir",
+      "step_number": 4,
       "duration": 55,
       "water_amount": 0
     },
@@ -87,9 +91,10 @@ users/:user_id/
       "recipe_id": 1,
       "step_title": "Plunge",
       "step_body": "Press evenly until coffee is out, do not compress puck",
+      "step_number": 5,
       "duration": 30,
       "water_amount": 0
-    },
+    }
   ],
   "brewnotes": [
     {
@@ -110,6 +115,6 @@ users/:user_id/
       "recipe_id": 1,
       "body": "Steep for 55 instead of 50 seconds",
       "timestamp": "2014-10-08 06:18"
-    },
+    }
   ]
 }
