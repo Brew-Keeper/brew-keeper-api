@@ -27,9 +27,13 @@ class Recipe(models.Model):
     def __str__(self):
         return "{} rated as: {}, bean: {} roast: {}".format(self.title, self.rating, self.bean_name, self.roast)
 
+    class Meta:
+        ordering = ['-rating']
+
 
 class Step(models.Model):
     recipe = models.ForeignKey(Recipe)
+    step_number = models.PositiveSmallIntegerField()
     step_title = models.CharField(max_length=50)
     step_detail = models.Charfield(max_length=255, blank=True, null=True)
     duration = models.PositiveSmallIntegerField(default=0)
@@ -37,6 +41,8 @@ class Step(models.Model):
 
     def __str__(self):
         return self.step_title
+
+    
 
 
 class Brewnote(models.Model):
