@@ -7,7 +7,8 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 BLACKLIST_APPS = ['debugtoolbar', 'django_extensions']
 
-INSTALLED_APPS = tuple([app for app in INSTALLED_APPS if app not in BLACKLIST_APPS])
+INSTALLED_APPS = tuple([app for app in INSTALLED_APPS
+                        if app not in BLACKLIST_APPS])
 
 DATABASES['default'] = dj_database_url.config()
 
