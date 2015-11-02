@@ -47,7 +47,7 @@ class Step(models.Model):
         ordering = ['step_number']
 
 
-class Brewnote(models.Model):
+class BrewNote(models.Model):
     recipe = models.ForeignKey(Recipe)
     body = models.TextField()
     timestamp = models.DateTimeField(auto_now=True)
