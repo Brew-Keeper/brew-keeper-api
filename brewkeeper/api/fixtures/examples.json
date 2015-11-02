@@ -1,9 +1,10 @@
 users/:user_id/
 
 {
+  "comment": "username and user_id are not yet active",
   "username": "don.pablo",
   "user_id": 1,
-  "recipe_list": [
+  "recipes": [
     {
       "id": 1,
       "title": "The Original",
@@ -36,16 +37,16 @@ users/:user_id/
   "username": "don.pablo",
   "title": "The Original",
   "orientation": "Regular",
-  "user_rating": 5,
+  "rating": 5,
   "general_recipe_comment": "No stirring, just hard pour.",
-  "bean_type": "Arabica",
-  "bean_roast": "Medium",
+  "bean_name": "Arabica",
+  "roast": "Medium",
   "grind": "Capresso M2",
-  "bean_amount": 18,
+  "total_bean_amount": 18,
   "bean_units": "g",
   "water_type": "tap",
-  "water_amount": 8,
-  "water_amount_units": "oz",
+  "total_water_amount": 8,
+  "water_units": "oz",
   "temp": 176,
   "brew_count": 524,
   "total_duration": 140,
