@@ -13,7 +13,7 @@ class Recipe(models.Model):
     rating = models.PositiveSmallIntegerField(blank=True, null=True)
     general_recipe_comment = models.TextField(blank=True, null=True)
     bean_name = models.CharField(max_length=50, blank=True, null=True)
-    roast = models.CharField(max_length=12, blank=True, null=True)
+    roast = models.CharField(max_length=15, blank=True, null=True)
     grind = models.CharField(max_length=12, blank=True, null=True)
     total_bean_amount = models.PositiveSmallIntergerField(blank=True, null=True)
     bean_units = models.CharField(max_length=12, blank=True, null=True)
@@ -21,7 +21,7 @@ class Recipe(models.Model):
     total_water_amount = models.PositiveSmallIntergerField(blank=True, null=True)
     water_units = models.CharField(max_length=12, blank=True, null=True)
     temp = models.PositiveSmallIntegerField(blank=True, null=True)
-    brew_count = models.PositiveSmallIntegerField(default=0)
+    brew_count = models.PositiveIntegerField(default=0)
     total_duration = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
