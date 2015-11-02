@@ -34,7 +34,7 @@ users/:user_id/
   "last_brewed_on": "2015-11-02 06:22",
   "username": "don.pablo",
   "title": "The Original",
-  "orientation": "Regular",
+  "orientation": "Standard",
   "rating": 5,
   "general_recipe_comment": "No stirring, just hard pour.",
   "bean_name": "Arabica",
