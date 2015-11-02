@@ -15,7 +15,31 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from rest_framework_nested import routers
+from api import views as api_views
+
+
+router = routers.SimpleRouter()
+
+# router.register(r'users', api_views.UserViewSet)
+router.register(r'recipes', api_views.UserViewSet)
+
+users_router = routers.NestedSimpleRouter(router,
+                                          r'users',
+                                          lookup='user')
+users_router.register(r'recipes',
+                      api_views.RecipeViewSet)
+
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+
+    url(r'^docs/', include('rest_framework_swagger.urls')),
+
+    url(r'^api/users/1/', include(router.urls)),
+
+    # url(r'^api/', include(users_router.urls)),
+
+    url(r'^api-auth/',
+        include('rest_framework.urls', namespace='rest_framework')),
 ]
