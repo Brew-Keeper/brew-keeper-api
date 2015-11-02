@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins  # , permissions, serializers
 from .models import Recipe, Step, BrewNote
 # from .permissions import IsAPIUser
-from .serializers import RecipeSerializer, RecipeListSerializer, StepSerializer, BrewNoteSerializer
+from .serializers import RecipeSerializer  # , RecipeListSerializer, StepSerializer, BrewNoteSerializer
 
 
 # Create your views here.
