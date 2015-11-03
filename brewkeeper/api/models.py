@@ -36,7 +36,7 @@ class Step(models.Model):
     recipe = models.ForeignKey(Recipe)
     step_number = models.PositiveSmallIntegerField()
     step_title = models.CharField(max_length=50)
-    step_detail = models.CharField(max_length=255, blank=True, null=True)
+    step_body = models.CharField(max_length=255, blank=True, null=True)
     duration = models.PositiveSmallIntegerField(default=0)
     water_amount = models.PositiveSmallIntegerField(blank=True, null=True)
 
