@@ -31,6 +31,11 @@ class StepViewSet(viewsets.ModelViewSet):
             # user=self.request.user,
             recipe=recipe)
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context().copy()
+        context['recipe_id'] = self.kwargs['recipe_pk']
+        return context
+
 
 class BrewNoteViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.BrewNoteSerializer
@@ -40,3 +45,8 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
         return BrewNote.objects.all().filter(
             # user=self.request.user,
             recipe=recipe)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context().copy()
+        context['recipe_id'] = self.kwargs['recipe_pk']
+        return context
