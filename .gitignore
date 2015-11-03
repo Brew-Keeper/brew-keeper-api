@@ -1,1 +1,4 @@
+.env
 staticfiles*
+*recipe_detail.json
+*recipe_list.json

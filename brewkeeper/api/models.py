@@ -36,20 +36,19 @@ class Step(models.Model):
     recipe = models.ForeignKey(Recipe)
     step_number = models.PositiveSmallIntegerField()
     step_title = models.CharField(max_length=50)
-    step_detail = models.CharField(max_length=255, blank=True, null=True)
+    step_body = models.CharField(max_length=255, blank=True, null=True)
     duration = models.PositiveSmallIntegerField(default=0)
     water_amount = models.PositiveSmallIntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.step_title
 
-
     class Meta:
         ordering = ['step_number']
-        
+        default_related_name = 'steps'
 
 
-class Brewnote(models.Model):
+class BrewNote(models.Model):
     recipe = models.ForeignKey(Recipe)
     body = models.TextField()
     timestamp = models.DateTimeField(auto_now=True)
@@ -59,3 +58,4 @@ class Brewnote(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
+        default_related_name = 'brewnotes'
