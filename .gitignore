@@ -1,3 +1,4 @@
 .env
 staticfiles*
-*fixtures/recipe_detail.json
+*recipe_detail.json
+*recipe_list.json
