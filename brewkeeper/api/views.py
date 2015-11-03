@@ -10,16 +10,16 @@ from . import serializers as api_serializers
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = api_serializers.RecipeSerializer
+    # serializer_class = api_serializers.RecipeSerializer
 
     # def get_queryset(self):
     #     return self.request.user.activity_set.all()
 
-    # def get_serializer_class(self):
-    #     if self.action is not 'list':
-    #         return RecipeSerializer
-    #     else:
-    #         return RecipeListSerializer
+    def get_serializer_class(self):
+        if self.action is 'list':
+            return api_serializers.RecipeListSerializer
+        else:
+            return api_serializers.RecipeDetailSerializer
 
 
 class StepViewSet(viewsets.ModelViewSet):

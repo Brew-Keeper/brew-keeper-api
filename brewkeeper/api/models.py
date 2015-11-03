@@ -45,6 +45,7 @@ class Step(models.Model):
 
     class Meta:
         ordering = ['step_number']
+        default_related_name = 'steps'
 
 
 class BrewNote(models.Model):
@@ -57,3 +58,4 @@ class BrewNote(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
+        default_related_name = 'brewnotes'

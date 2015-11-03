@@ -35,19 +35,32 @@ class BrewNoteSerializer(serializers.HyperlinkedModelSerializer):
         return brew_note
 
 
-class RecipeSerializer(serializers.HyperlinkedModelSerializer):
+class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
     # username = serializers.PrimaryKeyRelatedField(many=False,
     #                                              read_only=True,
     #                                              source='user_username')
 
-    # steps = StepSerializer(many=True)
+    class Meta:
+        model = Recipe
+        fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
+                  # 'username'
+                  )
+
+
+class RecipeDetailSerializer(RecipeListSerializer):
+    # username = serializers.PrimaryKeyRelatedField(many=False,
+    #                                              read_only=True,
+    #                                              source='user_username')
+
+    steps = StepSerializer(many=True)
+    brewnotes = BrewNoteSerializer(many=True)
 
     class Meta:
         model = Recipe
-        fields = ('id', 'created_on', 'last_brewed_on', 'title', 'orientation',
-                  'rating', 'general_recipe_comment', 'bean_name', 'roast',
-                  'grind', 'total_bean_amount', 'bean_units', 'water_type',
-                  'total_water_amount', 'water_units', 'temp', 'brew_count',
-                  'total_duration',
-                #   'steps', 'brew_notes'
-                  )
+        fields = tuple(list(RecipeListSerializer.Meta.fields) +
+                       ['steps', 'created_on', 'last_brewed_on', 'orientation',
+                        'general_recipe_comment', 'grind', 'total_bean_amount',
+                        'bean_units', 'water_type', 'total_water_amount',
+                        'water_units', 'temp', 'total_duration',
+                        'steps', 'brewnotes'
+                        ])
