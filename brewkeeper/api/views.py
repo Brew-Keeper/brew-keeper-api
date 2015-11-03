@@ -1,15 +1,14 @@
 # from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins  # , permissions, serializers
-from .models import Recipe, Step, BrewNote
+from .models import Recipe  # , Step, BrewNote
 # from .permissions import IsAPIUser
 from .serializers import RecipeSerializer  # , RecipeListSerializer, StepSerializer, BrewNoteSerializer
 
 
 # Create your views here.
 
-class RecipeViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
-                    mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
 
