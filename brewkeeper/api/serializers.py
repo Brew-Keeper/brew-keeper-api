@@ -58,7 +58,7 @@ class RecipeDetailSerializer(RecipeListSerializer):
     class Meta:
         model = Recipe
         fields = tuple(list(RecipeListSerializer.Meta.fields) +
-                       ['steps', 'created_on', 'last_brewed_on', 'orientation',
+                       ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
                         'water_units', 'temp', 'total_duration',
