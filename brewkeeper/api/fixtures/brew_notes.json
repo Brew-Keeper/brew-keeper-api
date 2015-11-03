@@ -1,0 +1,25 @@
+[{
+  "fields": {
+    "id": 1,
+    "recipe_id": 1,
+    "body": "Changed temp from 205 to 176",
+    "timestamp": "2015-3-10 06:23"
+  },
+  "model": "api.BrewNote"
+}, {
+  "fields": {
+    "id": 2,
+    "recipe_id": 1,
+    "body": "Stopped stirring, hard pour instead",
+    "timestamp": "2014-10-15 10:08"
+  },
+  "model": "api.BrewNote"
+}, {
+  "fields": {
+    "id": 3,
+    "recipe_id": 1,
+    "body": "Steep for 55 instead of 50 seconds",
+    "timestamp": "2014-10-08 06:18"
+  },
+  "model": "api.BrewNote"
+}]
