@@ -1,22 +1,38 @@
 # from django.contrib.auth.models import User
 # from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from .models import Recipe  # , Step, BrewNote
+from .models import Recipe, Step, BrewNote
 
 
-# class StepSerializer(serializers.HyperlinkedModelSerializer):
-#     recipe_id = serializers.PrimaryKeyRelatedField(many=False,
-#                                                    read_only=True,
-#                                                    source='recipe')
-#
-#     class Meta:
-#         model = Step
-#         fields = ('id', 'recipe_id', 'body', 'date')
-#
-#     def create(self, validated_data):
-#         validated_data['recipe_id'] = self.context['recipe_id']
-#         step = Step.objects.create(**validated_data)
-#         return step
+class StepSerializer(serializers.HyperlinkedModelSerializer):
+    recipe_id = serializers.PrimaryKeyRelatedField(many=False,
+                                                   read_only=True,
+                                                   source='recipe')
+
+    class Meta:
+        model = Step
+        fields = ('id', 'recipe_id', 'step_number', 'step_title', 'step_body',
+                  'duration', 'water_amount')
+
+    def create(self, validated_data):
+        validated_data['recipe_id'] = self.context['recipe_id']
+        step = Step.objects.create(**validated_data)
+        return step
+
+
+class BrewNoteSerializer(serializers.HyperlinkedModelSerializer):
+    recipe_id = serializers.PrimaryKeyRelatedField(many=False,
+                                                   read_only=True,
+                                                   source='recipe')
+
+    class Meta:
+        model = BrewNote
+        fields = ('id', 'recipe_id', 'body', 'timestamp')
+
+    def create(self, validated_data):
+        validated_data['recipe_id'] = self.context['recipe_id']
+        brew_note = BrewNote.objects.create(**validated_data)
+        return brew_note
 
 
 class RecipeSerializer(serializers.HyperlinkedModelSerializer):
