@@ -29,6 +29,7 @@ class Recipe(models.Model):
 
     class Meta:
         ordering = ['-rating']
+        default_related_name = 'recipes'
 
 
 class Step(models.Model):
@@ -43,6 +44,9 @@ class Step(models.Model):
         return self.step_title
 
 
+    class Meta:
+        ordering = ['step_number']
+        
 
 
 class Brewnote(models.Model):
@@ -52,3 +56,6 @@ class Brewnote(models.Model):
 
     def __str__(self):
         return "{}, added: {}".format(self.body, self.timestamp)
+
+    class Meta:
+        ordering = ['-timestamp']
