@@ -1,4 +1,5 @@
 # from django.contrib.auth.models import User
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets  # , mixins  # , permissions, serializers
 from .models import Recipe, Step, BrewNote
@@ -35,6 +36,29 @@ class StepViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
         return context
+
+    def perform_create(self, serializer):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        serializer.save()
+        total = recipe.steps.aggregate(Sum('duration'))
+        recipe.total_duration = total['duration__sum']
+        recipe.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        instance = self.get_object()
+        total = instance.recipe.steps.aggregate(Sum('duration'))
+        instance.recipe.total_duration = total['duration__sum']
+        instance.recipe.save()
+
+    def perform_destroy(self, instance):
+        new_total = instance.recipe.total_duration - instance.duration
+        if new_total < 0:
+            instance.recipe.total_duration = 0
+        else:
+            instance.recipe.total_duration = new_total
+        instance.recipe.save()
+        instance.delete()
 
 
 class BrewNoteViewSet(viewsets.ModelViewSet):
