@@ -36,6 +36,11 @@ class StepViewSet(viewsets.ModelViewSet):
         context['recipe_id'] = self.kwargs['recipe_pk']
         return context
 
+    def perform_destroy(self, instance):
+        instance.recipe.total_duration -= instance.duration
+        instance.recipe.save()
+        instance.delete()
+
 
 class BrewNoteViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.BrewNoteSerializer
