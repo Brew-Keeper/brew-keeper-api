@@ -2,7 +2,7 @@
 # from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from .models import Recipe
+from .models import Recipe, BrewNote
 
 
 # Create your tests here.
@@ -10,7 +10,8 @@ from .models import Recipe
 class RecipeTests(APITestCase):
 
     def setUp(self):
-        Recipe.objects.create(title="The Original", bean_name="Arabica")
+        recipe = Recipe.objects.create(title="The Original", bean_name="Arabica")
+        brewnote = BrewNote.objects.create(recipe=recipe, body='Test Brewnote')
 
     def test_get_recipe(self):
         """
@@ -46,7 +47,6 @@ class RecipeTests(APITestCase):
         deleted_recipe = Recipe.objects.filter(title='The Original')
 
 
-
     def test_patch_recipe(self):
         """
         Ensure we can change a field in a recipe object.
@@ -58,3 +58,42 @@ class RecipeTests(APITestCase):
                                      format='json')
         # self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(orig_recipe[0].bean_name, 'Robusto')
+
+
+    def test_create_brewnote(self):
+        """
+        Ensure we can create a new brewnote object.
+        """
+        parent_recipe = Recipe.objects.filter(title='The Original')[0]
+        url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+              '/brewnotes/'
+        response = self.client.post(url, {'body': 'A test brewnote'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
+        self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
+
+
+    def test_patch_brewnote(self):
+        """
+        Ensure we can change a field in a brewnote object.
+        """
+        parent_recipe = Recipe.objects.filter(title='The Original')
+        parent_recipe = parent_recipe[0]
+        brewnotes = parent_recipe.brewnotes.all()
+        brewnote_id = str(brewnotes[0].pk)
+        url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+              '/brewnotes/' + brewnote_id
+        response = self.client.patch(url, {'body': 'A test brewnote'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Recipe.objects.count(), 1)
+        posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
+        self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
+
+
+        # orig_recipe = Recipe.objects.filter(title='The Original')
+        # orig_url = '/api/users/don.pablo/recipes/' + str(orig_recipe[0].pk) + '/'
+        # response = self.client.patch(orig_url,
+        #                              {'bean_name': 'Robusto'},
+        #                              format='json')
+        # # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.assertEqual(orig_recipe[0].bean_name, 'Robusto'
