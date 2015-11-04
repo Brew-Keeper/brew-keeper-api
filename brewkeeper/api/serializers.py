@@ -1,4 +1,4 @@
-# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 # from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from .models import Recipe, Step, BrewNote
@@ -64,3 +64,18 @@ class RecipeDetailSerializer(RecipeListSerializer):
                         'water_units', 'temp', 'total_duration',
                         'steps', 'brewnotes'
                         ])
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    recipes = RecipeListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'recipes', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
