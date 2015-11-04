@@ -1,7 +1,9 @@
-# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets  # , mixins  # , permissions, serializers
+from rest_framework import viewsets, mixins, status  # , permissions, serializers
+from rest_framework.decorators import api_view  # , detail_route
+from rest_framework.response import Response
 from .models import Recipe, Step, BrewNote
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
@@ -74,3 +76,21 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
         return context
+
+
+class UserViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin):
+    # permission_classes = (IsReadOnly,)
+    queryset = User.objects.all()
+    serializer_class = api_serializers.UserSerializer
+    lookup_field = 'username'
+
+
+@api_view(['GET'])
+def whoami(request):
+    user = request.user
+    if user.is_authenticated():
+        serializer = api_serializers.UserSerializer(user)
+        return Response(serializer.data)
+    else:
+        return Response('', status=status.HTTP_404_NOT_FOUND)
