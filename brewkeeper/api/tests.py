@@ -12,7 +12,6 @@ class RecipeTests(APITestCase):
     def setUp(self):
         Recipe.objects.create(title="The Original", bean_name="Arabica")
 
-
     def test_read_recipe(self):
         """
         Ensure we can read a recipe object.
@@ -20,8 +19,8 @@ class RecipeTests(APITestCase):
         orig_recipe = Recipe.objects.filter(title='The Original')
         orig_url = '/api/users/don.pablo/recipes/' + str(orig_recipe[0].pk) + '/'
         response = self.client.get(orig_url)
-        # self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Recipe.objects.get().orientation, 'Regular')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], 'The Original')
 
 
     def test_create_recipe(self):
