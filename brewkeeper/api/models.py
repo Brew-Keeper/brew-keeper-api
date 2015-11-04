@@ -18,14 +18,16 @@ class Recipe(models.Model):
     total_bean_amount = models.PositiveSmallIntegerField(blank=True, null=True)
     bean_units = models.CharField(max_length=12, blank=True, null=True)
     water_type = models.CharField(max_length=50, blank=True, null=True)
-    total_water_amount = models.PositiveSmallIntegerField(blank=True, null=True)
+    total_water_amount = models.PositiveSmallIntegerField(
+        blank=True, null=True)
     water_units = models.CharField(max_length=12, blank=True, null=True)
     temp = models.PositiveSmallIntegerField(blank=True, null=True)
     brew_count = models.PositiveIntegerField(default=0)
     total_duration = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
-        return "{} rated as: {}, bean: {} roast: {}".format(self.title, self.rating, self.bean_name, self.roast)
+        return "{} rated as: {}, bean: {} roast: {}".format(
+               self.title, self.rating, self.bean_name, self.roast)
 
     class Meta:
         ordering = ['-rating']
