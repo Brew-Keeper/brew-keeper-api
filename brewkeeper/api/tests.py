@@ -65,9 +65,9 @@ class RecipeTests(APITestCase):
         Ensure we can create a new brewnote object.
         """
         parent_recipe = Recipe.objects.filter(title='The Original')[0]
-        url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
-              '/brewnotes/'
-        response = self.client.post(url, {'body': 'A test brewnote'})
+        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                   '/brewnotes/'
+        response = self.client.post(brew_url, {'body': 'A test brewnote'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
         self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
@@ -81,19 +81,14 @@ class RecipeTests(APITestCase):
         parent_recipe = parent_recipe[0]
         brewnotes = parent_recipe.brewnotes.all()
         brewnote_id = str(brewnotes[0].pk)
-        url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
-              '/brewnotes/' + brewnote_id
-        response = self.client.patch(url, {'body': 'A test brewnote'}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        print(brewnote_id)
+        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                   '/brewnotes/' + brewnote_id + '/'
+        response = self.client.patch(brew_url,
+                                     {'body': 'A test brewnote'},
+                                     format='json')
+        print(response.data['body'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Recipe.objects.count(), 1)
         posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
         self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
-
-
-        # orig_recipe = Recipe.objects.filter(title='The Original')
-        # orig_url = '/api/users/don.pablo/recipes/' + str(orig_recipe[0].pk) + '/'
-        # response = self.client.patch(orig_url,
-        #                              {'bean_name': 'Robusto'},
-        #                              format='json')
-        # # self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # self.assertEqual(orig_recipe[0].bean_name, 'Robusto'
