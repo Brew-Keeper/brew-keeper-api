@@ -52,8 +52,8 @@ class RecipeDetailSerializer(RecipeListSerializer):
     #                                              read_only=True,
     #                                              source='user_username')
 
-    steps = StepSerializer(many=True)
-    brewnotes = BrewNoteSerializer(many=True)
+    steps = StepSerializer(many=True, read_only=True)
+    brewnotes = BrewNoteSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
