@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from rest_framework import viewsets, mixins, status  # , permissions, serializers
 from rest_framework.decorators import api_view  # , detail_route
 from rest_framework.response import Response
@@ -89,6 +90,7 @@ class UserViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
 
 
 @api_view(['GET'])
+@ensure_csrf_cookie
 def whoami(request):
     user = request.user
     if user.is_authenticated():
@@ -99,7 +101,23 @@ def whoami(request):
 
 
 @api_view(['POST'])
-def user_login(request):
+def register_user(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = User.objects.filter(username=username)
+    if len(user) != 0:
+        return HttpResponse('That username is already in the database.')
+    else:
+        new_user = User(username=username)
+        new_user.set_password(password)
+        new_user.email = request.POST['email']
+        new_user.save()
+        login(request, new_user)
+        return HttpResponse('User created and logged in.')
+
+
+@api_view(['POST'])
+def login_user(request):
     username = request.POST['username']
     password = request.POST['password']
     user = authenticate(username=username, password=password)
@@ -116,6 +134,6 @@ def user_login(request):
 
 
 @api_view(['POST'])
-def user_logout(request):
+def logout_user(request):
     logout(request)
     return HttpResponse('Successfully logged out.')
