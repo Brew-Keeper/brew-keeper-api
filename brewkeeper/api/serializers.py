@@ -1,7 +1,7 @@
 # from django.contrib.auth.models import User
 # from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from .models import Recipe, Step, BrewNote
+from .models import Recipe, Step, BrewNote, PublicRating, PublicComment
 
 
 class StepSerializer(serializers.HyperlinkedModelSerializer):
@@ -35,6 +35,40 @@ class BrewNoteSerializer(serializers.HyperlinkedModelSerializer):
         return brew_note
 
 
+class PublicRatingSerializer(serializers.HyperlinkedModelSerializer):
+    recipe_id = serializers.PrimaryKeyRelatedField(many=False,
+                                                   read_only=True,
+                                                   source='recipe')
+
+    class Meta:
+        model = PublicRating
+        fields = ('recipe_id',
+                  # 'user_id',
+                  'public_rating')
+
+    def create(self, validated_data):
+        validated_data['recipe_id'] = self.context['recipe_id']
+        public_rating = PublicRating.objects.create(**validated_data)
+        return public_rating
+
+
+class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
+    recipe_id = serializers.PrimaryKeyRelatedField(many=False,
+                                                   read_only=True,
+                                                   source='recipe')
+
+    class Meta:
+        model = PublicComment
+        fields = ('recipe_id',
+                  # 'user_id',
+                  'public_comment')
+
+    def create(self, validated_data):
+        validated_data['recipe_id'] = self.context['recipe_id']
+        public_comment = PublicComment.objects.create(**validated_data)
+        return public_comment
+        
+
 class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
     # username = serializers.PrimaryKeyRelatedField(many=False,
     #                                              read_only=True,
@@ -54,13 +88,16 @@ class RecipeDetailSerializer(RecipeListSerializer):
 
     steps = StepSerializer(many=True, read_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
+    # ratings = RecipeRatingSerializer(many=True, read_only=True)
+    # comments = RecipeCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
         fields = tuple(list(RecipeListSerializer.Meta.fields) +
-                       ['steps', 'created_on', 'last_brewed_on', 'orientation',
+                       ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
                         'water_units', 'temp', 'total_duration',
-                        'steps', 'brewnotes'
+                        'steps', 'brewnotes',
+                        # 'ratings', 'comments'
                         ])

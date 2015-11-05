@@ -23,6 +23,7 @@ class Recipe(models.Model):
     temp = models.PositiveSmallIntegerField(blank=True, null=True)
     brew_count = models.PositiveIntegerField(default=0)
     total_duration = models.PositiveSmallIntegerField(default=0)
+    average_rating = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return "{} rated as: {}, bean: {} roast: {}".format(self.title, self.rating, self.bean_name, self.roast)
@@ -44,6 +45,7 @@ class Step(models.Model):
         return self.step_title
 
     class Meta:
+        # unique_together = ('recipe_pk', 'step_number')
         ordering = ['step_number']
         default_related_name = 'steps'
 
@@ -59,3 +61,31 @@ class BrewNote(models.Model):
     class Meta:
         ordering = ['-timestamp']
         default_related_name = 'brewnotes'
+
+
+class PublicRating(models.Model):
+    recipe = models.ForeignKey(Recipe)
+    # user = models.OneToOneField(User)
+    public_rating = models.PositiveSmallIntegerField()
+
+    # def __str__(self):
+    #     return "{} gave {} stars for {}".format(self.user, self.public_rating, self.recipe.title)
+    def __str__(self):
+        return "don.pablo gave {} stars for {}".format(self.public_rating, self.recipe.title)
+
+    class Meta:
+        default_related_name = 'public_ratings'
+
+
+class PublicComment(models.Model):
+    recipe = models.ForeignKey(Recipe)
+    # user = models.OneToOneField(User)
+    public_comments = models.TextField()
+
+    # def __str__(self):
+    #     return "{} said {} about {}".format(self.user, self.public_comment, self.recipe.title)
+    def __str__(self):
+        return "don.pablo said {} about {}".format(self.public_comment, self.recipe.title)
+
+    class Meta:
+        default_related_name = 'public_comments'
