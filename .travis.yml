@@ -11,5 +11,5 @@ before_script:
   python brewkeeper/manage.py runserver &
 
 script:
-  run brewkeeper/manage.py test
+  brewkeeper/manage.py test
 # coverage run functional_tests.py
