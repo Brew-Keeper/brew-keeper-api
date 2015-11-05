@@ -1,0 +1,78 @@
+{
+"id": 1,
+"username": "don.pablo",
+"title": "The Original",
+"orientation": "Regular",
+"rating": 5,
+"general_recipe_comment": "No stirring, just hard pour.",
+"bean_name": "Arabica",
+"roast": "Medium",
+"grind": "Capresso M2",
+"total_bean_amount": 18,
+"bean_units": "g",
+"water_type": "tap",
+"total_water_amount": 8,
+"water_units": "oz",
+"temp": 176,
+"steps": [
+  {
+    "comment": "Required fields for step form submission: recipe_id (via url), step title",
+    "id": 1,
+    "recipe_id": 1,
+    "step_title": "Pour",
+    "step_body": "Pour slowly, using side-to-side motion to ensure no dry spots",
+    "duration": 10,
+    "water_amount": 1
+  },
+  {
+    "id": 2,
+    "recipe_id": 1,
+    "step_title": "Bloom",
+    "step_body": "Do not stir",
+    "duration": 35,
+    "water_amount": 0
+  },
+  {
+    "id": 3,
+    "recipe_id": 1,
+    "step_title": "Pour",
+    "step_body": "Pour medium at first, using side-to-side motion to ensure even distribution, then hard pour rest of water",
+    "duration": 10,
+    "water_amount": 3
+  },
+  {
+    "id": 4,
+    "recipe_id": 1,
+    "step_title": "Steep",
+    "step_body": "Do not stir",
+    "duration": 55,
+    "water_amount": 0
+  },
+  {
+    "id": 5,
+    "recipe_id": 1,
+    "step_title": "Plunge",
+    "step_body": "Press evenly until coffee is out, do not compress puck",
+    "duration": 30,
+    "water_amount": 0
+  },
+],
+"brewnotes": [
+  {
+    "comment": "Required fields for brewnote form submission: recipe_id (via url), step title",
+    "id": 1,
+    "recipe_id": 1,
+    "body": "Changed temp from 205 to 176"
+  },
+  {
+    "id": 2,
+    "recipe_id": 1,
+    "body": "Stopped stirring, hard pour instead"
+  },
+  {
+    "id": 3,
+    "recipe_id": 1,
+    "body": "Steep for 55 instead of 50 seconds"
+  },
+]
+}
