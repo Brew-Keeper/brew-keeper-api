@@ -81,13 +81,11 @@ class RecipeTests(APITestCase):
         parent_recipe = parent_recipe[0]
         brewnotes = parent_recipe.brewnotes.all()
         brewnote_id = str(brewnotes[0].pk)
-        print(brewnote_id)
         brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
                    '/brewnotes/' + brewnote_id + '/'
         response = self.client.patch(brew_url,
                                      {'body': 'A test brewnote'},
                                      format='json')
-        print(response.data['body'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Recipe.objects.count(), 1)
         posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
