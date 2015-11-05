@@ -13,6 +13,7 @@ class RecipeTests(APITestCase):
         recipe = Recipe.objects.create(title="The Original", bean_name="Arabica")
         brewnote = BrewNote.objects.create(recipe=recipe, body='Test Brewnote')
 
+
     def test_get_recipe(self):
         """
         Ensure we can read a recipe object.
@@ -44,7 +45,7 @@ class RecipeTests(APITestCase):
         orig_url = '/api/users/don.pablo/recipes/' + str(orig_recipe[0].pk) + '/'
         response = self.client.delete(orig_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        deleted_recipe = Recipe.objects.filter(title='The Original')
+        # deleted_recipe = Recipe.objects.filter(title='The Original')
 
 
     def test_patch_recipe(self):
@@ -73,6 +74,20 @@ class RecipeTests(APITestCase):
         self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
 
 
+    def test_get_brewnote(self):
+        """
+        Ensure we can read a brewnote object.
+        """
+        parent_recipe = Recipe.objects.filter(title='The Original')[0]
+        brewnotes = parent_recipe.brewnotes.all()
+        brewnote_id = str(brewnotes[0].pk)
+        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                   '/brewnotes/' + brewnote_id + '/'
+        response = self.client.get(brew_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['body'], 'Test Brewnote')
+
+
     def test_patch_brewnote(self):
         """
         Ensure we can change a field in a brewnote object.
@@ -90,3 +105,16 @@ class RecipeTests(APITestCase):
         self.assertEqual(Recipe.objects.count(), 1)
         posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
         self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
+
+
+    def test_delete_brewnote(self):
+        """
+        Ensure we can delete a brewnote object.
+        """
+        parent_recipe = Recipe.objects.filter(title='The Original')[0]
+        brewnotes = parent_recipe.brewnotes.all()
+        brewnote_id = str(brewnotes[0].pk)
+        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                   '/brewnotes/' + brewnote_id + '/'
+        response = self.client.delete(brew_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
