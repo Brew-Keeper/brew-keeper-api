@@ -1,5 +1,7 @@
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins, status  # , permissions, serializers
 from rest_framework.decorators import api_view  # , detail_route
@@ -79,9 +81,9 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin):
+                  mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
     # permission_classes = (IsReadOnly,)
-    queryset = User.objects.all()
+    queryset = User.objects.filter(username='username')
     serializer_class = api_serializers.UserSerializer
     lookup_field = 'username'
 
@@ -94,3 +96,26 @@ def whoami(request):
         return Response(serializer.data)
     else:
         return Response('', status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def user_login(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+            return HttpResponse('Successfully logged in.')
+        else:
+            # Return a 'disabled account' error message
+            return HttpResponseBadRequest('Account disabled.')
+    else:
+        # Return an 'invalid login' error message.
+        return HttpResponseBadRequest('Invalid login.')
+
+
+@api_view(['POST'])
+def user_logout(request):
+    logout(request)
+    return HttpResponse('Successfully logged out.')
