@@ -21,16 +21,25 @@ from api import views as api_views
 
 router = routers.SimpleRouter()
 
-router.register(r'recipes', api_views.RecipeViewSet)
+router.register(r'users', api_views.UserViewSet)
 
-recipes_steps_router = routers.NestedSimpleRouter(router,
+# router.register(r'recipes', api_views.RecipeViewSet)
+
+recipes_router = routers.NestedSimpleRouter(router,
+                                            r'users',
+                                            lookup='user')
+recipes_router.register(r'recipes',
+                        api_views.RecipeViewSet,
+                        base_name='recipe_list')
+
+recipes_steps_router = routers.NestedSimpleRouter(recipes_router,
                                                   r'recipes',
                                                   lookup='recipe')
 recipes_steps_router.register(r'steps',
                               api_views.StepViewSet,
                               base_name='step_list')
 
-recipes_brewnotes_router = routers.NestedSimpleRouter(router,
+recipes_brewnotes_router = routers.NestedSimpleRouter(recipes_router,
                                                       r'recipes',
                                                       lookup='recipe')
 
@@ -46,11 +55,17 @@ urlpatterns = [
 
     url(r'^docs/', include('rest_framework_swagger.urls')),
 
-    url(r'^api/users/don\.pablo/', include(router.urls)),
+    url(r'^api/', include(router.urls)),
 
-    url(r'^api/users/don\.pablo/', include(recipes_steps_router.urls)),
+    url(r'^api/', include(recipes_router.urls)),
 
-    url(r'^api/users/don\.pablo/', include(recipes_brewnotes_router.urls)),
+    url(r'^api/', include(recipes_steps_router.urls)),
+
+    url(r'^api/', include(recipes_brewnotes_router.urls)),
+
+    # url(r'^api/login/$', api_views.user_login, name='login'),
+    #
+    # url(r'^api/logout/$', api_views.user_logout, name='logout'),
 
     url(r'^api/whoami/$', api_views.whoami, name='who-am-i'),
 
