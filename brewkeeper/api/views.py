@@ -83,6 +83,7 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
                   mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
+    # class UserViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsReadOnly,)
     queryset = User.objects.filter(username='username')
     serializer_class = api_serializers.UserSerializer
