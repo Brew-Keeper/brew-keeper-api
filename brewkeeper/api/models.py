@@ -23,7 +23,7 @@ class Recipe(models.Model):
     temp = models.PositiveSmallIntegerField(blank=True, null=True)
     brew_count = models.PositiveIntegerField(default=0)
     total_duration = models.PositiveSmallIntegerField(default=0)
-    average_rating = models.PositiveSmallIntegerField(default=0)
+    average_rating = models.FloatField(default=0)
 
     def __str__(self):
         return "{} rated as: {}, bean: {} roast: {}".format(self.title, self.rating, self.bean_name, self.roast)
@@ -80,7 +80,7 @@ class PublicRating(models.Model):
 class PublicComment(models.Model):
     recipe = models.ForeignKey(Recipe)
     # user = models.OneToOneField(User)
-    public_comments = models.TextField()
+    public_comment = models.TextField()
 
     # def __str__(self):
     #     return "{} said {} about {}".format(self.user, self.public_comment, self.recipe.title)

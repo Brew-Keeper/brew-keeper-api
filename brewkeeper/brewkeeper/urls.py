@@ -50,7 +50,7 @@ recipes_comments_router = routers.NestedSimpleRouter(router,
                                                      r'recipes',
                                                      lookup='recipe')
 
-recipes_comments_router.register(r'ratings',
+recipes_comments_router.register(r'comments',
                                  api_views.PublicCommentViewSet,
                                  base_name='public_comments')
 

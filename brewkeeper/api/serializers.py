@@ -42,7 +42,8 @@ class PublicRatingSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = PublicRating
-        fields = ('recipe_id',
+        fields = ('id',
+                  'recipe_id',
                   # 'user_id',
                   'public_rating')
 
@@ -59,7 +60,8 @@ class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = PublicComment
-        fields = ('recipe_id',
+        fields = ('id', 
+                  'recipe_id',
                   # 'user_id',
                   'public_comment')
 
@@ -67,7 +69,7 @@ class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['recipe_id'] = self.context['recipe_id']
         public_comment = PublicComment.objects.create(**validated_data)
         return public_comment
-        
+
 
 class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
     # username = serializers.PrimaryKeyRelatedField(many=False,
@@ -88,8 +90,8 @@ class RecipeDetailSerializer(RecipeListSerializer):
 
     steps = StepSerializer(many=True, read_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
-    # ratings = RecipeRatingSerializer(many=True, read_only=True)
-    # comments = RecipeCommentSerializer(many=True, read_only=True)
+    public_ratings = PublicRatingSerializer(many=True, read_only=True)
+    public_comments = PublicCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
@@ -98,6 +100,6 @@ class RecipeDetailSerializer(RecipeListSerializer):
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
                         'water_units', 'temp', 'total_duration',
-                        'steps', 'brewnotes',
-                        # 'ratings', 'comments'
+                        'steps', 'brewnotes', 'average_rating',
+                        'public_ratings', 'public_comments'
                         ])
