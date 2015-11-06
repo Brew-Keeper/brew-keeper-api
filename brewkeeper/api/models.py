@@ -1,5 +1,5 @@
 from django.db import models
-# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -7,7 +7,7 @@ from django.db import models
 class Recipe(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     last_brewed_on = models.DateTimeField(auto_now=True)
-    # user = models.ForeignKey(User)
+    user = models.ForeignKey(User)
     title = models.CharField(max_length=50)
     orientation = models.CharField(max_length=8, blank=True, null=True)
     rating = models.PositiveSmallIntegerField(blank=True, null=True)

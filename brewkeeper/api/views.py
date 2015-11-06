@@ -15,11 +15,16 @@ from . import serializers as api_serializers
 # Create your views here.
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
+    # queryset = Recipe.objects.all()
     # serializer_class = api_serializers.RecipeSerializer
 
-    # def get_queryset(self):
-    #     return self.request.user.activity_set.all()
+    def get_queryset(self):
+        return self.request.user.recipes.all()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context().copy()
+        context['username'] = self.kwargs['user_username']
+        return context
 
     def get_serializer_class(self):
         if self.action is 'list':
@@ -34,7 +39,7 @@ class StepViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
         return Step.objects.all().filter(
-            # user=self.request.user,
+            user=self.request.user,
             recipe=recipe)
 
     def get_serializer_context(self):
@@ -72,7 +77,7 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
         return BrewNote.objects.all().filter(
-            # user=self.request.user,
+            user=self.request.user,
             recipe=recipe)
 
     def get_serializer_context(self):
@@ -81,8 +86,7 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
         return context
 
 
-class UserViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
+class UserViewSet(viewsets.GenericViewSet):
     # class UserViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsReadOnly,)
     queryset = User.objects.filter(username='username')

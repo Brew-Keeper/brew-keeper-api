@@ -23,29 +23,27 @@ router = routers.SimpleRouter()
 
 router.register(r'users', api_views.UserViewSet)
 
-# router.register(r'recipes', api_views.RecipeViewSet)
+recipes_router = routers.NestedSimpleRouter(router,
+                                            r'users',
+                                            lookup='user')
+recipes_router.register(r'recipes',
+                        api_views.RecipeViewSet,
+                        base_name='recipe_list')
 
-# recipes_router = routers.NestedSimpleRouter(router,
-#                                             r'users',
-#                                             lookup='user')
-# recipes_router.register(r'recipes',
-#                         api_views.RecipeViewSet,
-#                         base_name='recipe_list')
-#
-# recipes_steps_router = routers.NestedSimpleRouter(recipes_router,
-#                                                   r'recipes',
-#                                                   lookup='recipe')
-# recipes_steps_router.register(r'steps',
-#                               api_views.StepViewSet,
-#                               base_name='step_list')
-#
-# recipes_brewnotes_router = routers.NestedSimpleRouter(recipes_router,
-#                                                       r'recipes',
-#                                                       lookup='recipe')
-#
-# recipes_brewnotes_router.register(r'brewnotes',
-#                                   api_views.BrewNoteViewSet,
-#                                   base_name='brewnote_list')
+recipes_steps_router = routers.NestedSimpleRouter(recipes_router,
+                                                  r'recipes',
+                                                  lookup='recipe')
+recipes_steps_router.register(r'steps',
+                              api_views.StepViewSet,
+                              base_name='step_list')
+
+recipes_brewnotes_router = routers.NestedSimpleRouter(recipes_router,
+                                                      r'recipes',
+                                                      lookup='recipe')
+
+recipes_brewnotes_router.register(r'brewnotes',
+                                  api_views.BrewNoteViewSet,
+                                  base_name='brewnote_list')
 
 
 urlpatterns = [
@@ -57,11 +55,11 @@ urlpatterns = [
 
     url(r'^api/', include(router.urls)),
 
-    # url(r'^api/', include(recipes_router.urls)),
-    #
-    # url(r'^api/', include(recipes_steps_router.urls)),
-    #
-    # url(r'^api/', include(recipes_brewnotes_router.urls)),
+    url(r'^api/', include(recipes_router.urls)),
+
+    url(r'^api/', include(recipes_steps_router.urls)),
+
+    url(r'^api/', include(recipes_brewnotes_router.urls)),
 
     url(r'^api/register/$', api_views.register_user, name='register'),
 
