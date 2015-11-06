@@ -154,9 +154,10 @@ def change_password(request):
     if len(user) == 0:
         return HttpResponse('That username is not in the database.')
     if authenticate(username=username, password=old_password):
-        user.set_password(new_password)
-        user.save()
-        token, created = Token.objects.get_or_create(user=user)
+        u = user[0]
+        u.set_password(new_password)
+        u.save()
+        token, created = Token.objects.get_or_create(user=u)
         return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 
