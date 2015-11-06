@@ -117,13 +117,14 @@ def register_user(request):
     user = User.objects.filter(username=username)
     if len(user) != 0:
         return HttpResponse('That username is already in the database.')
-    else:
-        new_user = User(username=username)
-        new_user.set_password(password)
-        new_user.email = request.data.get('email', '')
-        new_user.save()
-        token, created = Token.objects.get_or_create(user=new_user)
-        return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+    if request.data.get('email', '') == '':
+        return HttpResponse('Email is a required field.')
+    new_user = User(username=username)
+    new_user.set_password(password)
+    new_user.email = request.data.get('email', '')
+    new_user.save()
+    token, created = Token.objects.get_or_create(user=new_user)
+    return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -141,6 +142,22 @@ def login_user(request):
     else:
         # Return an 'invalid login' error message.
         return HttpResponseBadRequest('Invalid login.')
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny, ))
+def change_password(request):
+    username = request.data['username']
+    old_password = request.data['old_password']
+    new_password = request.data['new_password']
+    user = User.objects.filter(username=username)
+    if len(user) == 0:
+        return HttpResponse('That username is not in the database.')
+    if authenticate(username=username, password=old_password):
+        user.set_password(new_password)
+        user.save()
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 
 # @api_view(['POST'])

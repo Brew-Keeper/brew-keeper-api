@@ -65,6 +65,10 @@ urlpatterns = [
 
     url(r'^api/logout/$', api_views.logout_user, name='logout'),
 
+    url(r'^api/change-pw/$', api_views.change_password, name='change_password'),
+
+    # url(r'^api/reset-pw/$', api_views.reset_password, name='reset_password'),
+
     url(r'^api/whoami/$', api_views.whoami, name='who-am-i'),
 
     url(r'^api-auth/',
