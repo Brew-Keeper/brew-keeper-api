@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework_swagger',
     'rest_framework.authtoken',
+    'password_reset',
     'corsheaders',
     'api',
 )
