@@ -23,6 +23,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
+        # When we add public, this will need to check if user is "public"
+        # and set username to public in that case
         context['username'] = self.request.user.username
         return context
 
