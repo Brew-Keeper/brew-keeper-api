@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from rest_framework import viewsets, mixins, status  # , permissions, serializers
+from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
+from rest_framework import viewsets, status  # , mixins, permissions, serializers
 from rest_framework.decorators import api_view  # , detail_route
 from rest_framework.response import Response
 from .models import Recipe, Step, BrewNote
@@ -23,7 +23,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
-        context['username'] = self.kwargs['user_username']
+        context['username'] = self.request.user.username
         return context
 
     def get_serializer_class(self):
