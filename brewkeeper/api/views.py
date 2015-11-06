@@ -7,7 +7,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
 from rest_framework import viewsets, status  # , mixins, permissions, serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Recipe, Step, BrewNote
 # from .permissions import IsAPIUser
@@ -106,23 +106,24 @@ def whoami(request):
         serializer = api_serializers.UserSerializer(user)
         return Response(serializer.data)
     else:
-        return Response('', status=status.HTTP_404_NOT_FOUND)
+        return Response({"username": user.username}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def register_user(request):
-    username = request.POST['username']
-    password = request.POST['password']
+    username = request.data['username']
+    password = request.data['password']
     user = User.objects.filter(username=username)
     if len(user) != 0:
         return HttpResponse('That username is already in the database.')
     else:
         new_user = User(username=username)
         new_user.set_password(password)
-        new_user.email = request.POST['email']
+        new_user.email = request.data.get('email', '')
         new_user.save()
-        login(request, new_user)
-        return HttpResponse('User created and logged in.')
+        token, created = Token.objects.get_or_create(user=new_user)
+        return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
