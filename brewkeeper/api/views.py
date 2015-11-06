@@ -106,38 +106,24 @@ def whoami(request):
         serializer = api_serializers.UserSerializer(user)
         return Response(serializer.data)
     else:
-        return Response('', status=status.HTTP_404_NOT_FOUND)
-
-
-# @api_view(['POST'])
-# @permission_classes((AllowAny, ))
-# def register_user(request):
-#     username = request.POST['username']
-#     password = request.POST['password']
-#     user = User.objects.filter(username=username)
-#     if len(user) != 0:
-#         return HttpResponse('That username is already in the database.')
-#     else:
-#         new_user = User(username=username)
-#         new_user.set_password(password)
-#         new_user.email = request.POST['email']
-#         new_user.save()
-#         login(request, new_user)
-#         return HttpResponse('User created and logged in.')
+        return Response({"username": user.username}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def register_user(request):
-    serialized = api_serializers.UserSerializer(data=request.DATA)
-    if serialized.is_valid():
-        User.objects.create_user(
-            serialized.init_data['email'],
-            serialized.init_data['username'],
-            serialized.init_data['password']
-        )
-        return Response(serialized.data, status=status.HTTP_201_CREATED)
+    username = request.data['username']
+    password = request.data['password']
+    user = User.objects.filter(username=username)
+    if len(user) != 0:
+        return HttpResponse('That username is already in the database.')
     else:
-        return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
+        new_user = User(username=username)
+        new_user.set_password(password)
+        new_user.email = request.data.get('email', '')
+        new_user.save()
+        token, created = Token.objects.get_or_create(user=new_user)
+        return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
