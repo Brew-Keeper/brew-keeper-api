@@ -61,7 +61,7 @@ urlpatterns = [
 
     url(r'^api/register/$', api_views.register_user, name='register'),
 
-    url(r'^api/login/$', api_views.login_user, name='login'),
+    url(r'^api/login/$', 'rest_framework.authtoken.views.obtain_auth_token'),
 
     url(r'^api/logout/$', api_views.logout_user, name='logout'),
 
