@@ -1,5 +1,5 @@
-# from django.contrib.auth.models import User
-# from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from .models import Recipe, Step, BrewNote
 
@@ -36,21 +36,22 @@ class BrewNoteSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
-    # username = serializers.PrimaryKeyRelatedField(many=False,
-    #                                              read_only=True,
-    #                                              source='user_username')
+    username = serializers.PrimaryKeyRelatedField(many=False,
+                                                  read_only=True,
+                                                  source='user.username')
 
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
-                  # 'username'
+                  'username'
                   )
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
     # username = serializers.PrimaryKeyRelatedField(many=False,
-    #                                              read_only=True,
-    #                                              source='user_username')
+    #                                               read_only=True,
+    #                                               source='user.username')
+
 
     steps = StepSerializer(many=True, read_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
@@ -64,3 +65,24 @@ class RecipeDetailSerializer(RecipeListSerializer):
                         'water_units', 'temp', 'total_duration',
                         'steps', 'brewnotes'
                         ])
+
+    def create(self, validated_data):
+        # url_user = self.context['url_user']
+        user = get_object_or_404(User, username=self.context['username'])
+        validated_data['user'] = user
+        recipe = Recipe.objects.create(**validated_data)
+        return recipe
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user

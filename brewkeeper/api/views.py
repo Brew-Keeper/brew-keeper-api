@@ -1,7 +1,12 @@
-# from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets  # , mixins  # , permissions, serializers
+from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
+from rest_framework import viewsets, status  # , mixins, permissions, serializers
+from rest_framework.decorators import api_view  # , detail_route
+from rest_framework.response import Response
 from .models import Recipe, Step, BrewNote
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
@@ -10,11 +15,18 @@ from . import serializers as api_serializers
 # Create your views here.
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
+    # queryset = Recipe.objects.all()
     # serializer_class = api_serializers.RecipeSerializer
 
-    # def get_queryset(self):
-    #     return self.request.user.activity_set.all()
+    def get_queryset(self):
+        return self.request.user.recipes.all()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context().copy()
+        # When we add public, this will need to check if user is "public"
+        # and set username to public in that case
+        context['username'] = self.request.user.username
+        return context
 
     def get_serializer_class(self):
         if self.action is 'list':
@@ -29,7 +41,7 @@ class StepViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
         return Step.objects.all().filter(
-            # user=self.request.user,
+            user=self.request.user,
             recipe=recipe)
 
     def get_serializer_context(self):
@@ -67,10 +79,68 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
         return BrewNote.objects.all().filter(
-            # user=self.request.user,
+            user=self.request.user,
             recipe=recipe)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
         return context
+
+
+class UserViewSet(viewsets.GenericViewSet):
+    # class UserViewSet(viewsets.ModelViewSet):
+    # permission_classes = (IsReadOnly,)
+    queryset = User.objects.filter(username='username')
+    serializer_class = api_serializers.UserSerializer
+    lookup_field = 'username'
+
+
+@api_view(['GET'])
+@ensure_csrf_cookie
+def whoami(request):
+    user = request.user
+    if user.is_authenticated():
+        serializer = api_serializers.UserSerializer(user)
+        return Response(serializer.data)
+    else:
+        return Response('', status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+def register_user(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = User.objects.filter(username=username)
+    if len(user) != 0:
+        return HttpResponse('That username is already in the database.')
+    else:
+        new_user = User(username=username)
+        new_user.set_password(password)
+        new_user.email = request.POST['email']
+        new_user.save()
+        login(request, new_user)
+        return HttpResponse('User created and logged in.')
+
+
+@api_view(['POST'])
+def login_user(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+            return HttpResponse('Successfully logged in.')
+        else:
+            # Return a 'disabled account' error message
+            return HttpResponseBadRequest('Account disabled.')
+    else:
+        # Return an 'invalid login' error message.
+        return HttpResponseBadRequest('Invalid login.')
+
+
+@api_view(['POST'])
+def logout_user(request):
+    logout(request)
+    return HttpResponse('Successfully logged out.')
