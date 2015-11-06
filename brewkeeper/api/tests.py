@@ -118,3 +118,62 @@ class RecipeTests(APITestCase):
                    '/brewnotes/' + brewnote_id + '/'
         response = self.client.delete(brew_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+    def test_create_comment(self):
+        """
+        Ensure we can create a new comment object.
+        """
+        parent_recipe = Recipe.objects.filter(title='The Original')[0]
+        comment_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                      '/comments/'
+        response = self.client.post(comment_url, {'body': 'A test comment'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        posted_comment = parent_recipe.public_comment.filter(body='A test comment')
+        self.assertEqual(posted_comment[0].body, 'A test comment')
+
+
+    def test_get_comment(self):
+        """
+        Ensure we can read a comment object.
+        """
+        parent_recipe = Recipe.objects.filter(title='The Original')[0]
+        comment = parent_recipe.public_comment.all()
+        comment_id = str(comment[0].pk)
+        comment_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                      '/comments/' + comment_id + '/'
+        response = self.client.get(comment_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['public_comment'], 'A test comment')
+
+
+    def test_patch_comment(self):
+        """
+        Ensure we can change a field in a comment object.
+        """
+        parent_recipe = Recipe.objects.filter(title='The Original')
+        parent_recipe = parent_recipe[0]
+        comment = parent_recipe.public_comment.all()
+        comment_id = str(comment[0].pk)
+        comment_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                      '/comments/' + comment_id + '/'
+        response = self.client.patch(brew_url,
+                                     {'body': 'A test comment'},
+                                     format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Recipe.objects.count(), 1)
+        posted_comment = parent_recipe.public_comment.filter(body='A test comment')
+        self.assertEqual(posted_comment[0].body, 'A test comment')
+
+
+    def test_delete_comment(self):
+        """
+        Ensure we can delete a comment object.
+        """
+        parent_recipe = Recipe.objects.filter(title='The Original')[0]
+        comment = parent_recipe.public_comment.all()
+        comment_id = str(comment[0].pk)
+        comment_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                      '/comments/' + comment_id + '/'
+        response = self.client.delete(comment_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
