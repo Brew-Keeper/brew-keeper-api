@@ -7,7 +7,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
 from rest_framework import viewsets, status  # , mixins, permissions, serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Recipe, Step, BrewNote
 # from .permissions import IsAPIUser
@@ -109,20 +109,35 @@ def whoami(request):
         return Response('', status=status.HTTP_404_NOT_FOUND)
 
 
+# @api_view(['POST'])
+# @permission_classes((AllowAny, ))
+# def register_user(request):
+#     username = request.POST['username']
+#     password = request.POST['password']
+#     user = User.objects.filter(username=username)
+#     if len(user) != 0:
+#         return HttpResponse('That username is already in the database.')
+#     else:
+#         new_user = User(username=username)
+#         new_user.set_password(password)
+#         new_user.email = request.POST['email']
+#         new_user.save()
+#         login(request, new_user)
+#         return HttpResponse('User created and logged in.')
+
+
 @api_view(['POST'])
 def register_user(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = User.objects.filter(username=username)
-    if len(user) != 0:
-        return HttpResponse('That username is already in the database.')
+    serialized = api_serializers.UserSerializer(data=request.DATA)
+    if serialized.is_valid():
+        User.objects.create_user(
+            serialized.init_data['email'],
+            serialized.init_data['username'],
+            serialized.init_data['password']
+        )
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
     else:
-        new_user = User(username=username)
-        new_user.set_password(password)
-        new_user.email = request.POST['email']
-        new_user.save()
-        login(request, new_user)
-        return HttpResponse('User created and logged in.')
+        return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
