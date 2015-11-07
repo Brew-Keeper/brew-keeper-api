@@ -98,6 +98,10 @@ class UserViewSet(viewsets.GenericViewSet):
     lookup_field = 'username'
 
 
+# class UserRouter(NestedSimpleRouter):
+#     lookup_field = 'username'
+
+
 @api_view(['GET'])
 @ensure_csrf_cookie
 def whoami(request):
