@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
-from rest_framework import viewsets, status  # , mixins, permissions, serializers
+from rest_framework import viewsets, status, mixins  # , permissions, serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -92,9 +92,11 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.GenericViewSet):
     # class UserViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsReadOnly,)
-    queryset = User.objects.filter(username='username')
     serializer_class = api_serializers.UserSerializer
     lookup_field = 'username'
+
+    def get_queryset(self):
+        return User.objects.filter(username=self.kwargs['username'])
 
 
 class UserNestedRouter(NestedSimpleRouter):
@@ -109,7 +111,8 @@ def whoami(request):
         serializer = api_serializers.UserSerializer(user)
         return Response(serializer.data)
     else:
-        return Response({"username": user.username}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"username": user.username},
+                        status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])

@@ -24,7 +24,7 @@ router.register(r'users', api_views.UserViewSet, base_name='users')
 
 recipes_router = api_views.UserNestedRouter(router,
                                             r'users',
-                                            lookup='user')
+                                            lookup='username')
 recipes_router.register(r'recipes',
                         api_views.RecipeViewSet,
                         base_name='recipe_list')
