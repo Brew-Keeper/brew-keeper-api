@@ -67,7 +67,9 @@ class RecipeDetailSerializer(RecipeListSerializer):
                         ])
 
     def create(self, validated_data):
-        # url_user = self.context['url_user']
+        # url_username = self.context['user_username']
+        # url_user = User.objects.get(username=url_username, '')
+
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
         recipe = Recipe.objects.create(**validated_data)
