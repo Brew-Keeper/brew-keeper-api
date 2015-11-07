@@ -82,6 +82,20 @@ class RecipeTests(APITestCase):
         posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
         self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
 
+    def test_get_brewnote(self):
+        """
+        Ensure we can read a brewnote object.
+        """
+        client = authenticate_user()
+        parent_recipe = Recipe.objects.filter(title='The Original')[0]
+        brewnotes = parent_recipe.brewnotes.all()
+        brewnote_id = str(brewnotes[0].pk)
+        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                   '/brewnotes/' + brewnote_id + '/'
+        response = client.get(brew_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['body'], 'Test Brewnote')
+
     def test_patch_brewnote(self):
         """
         Ensure we can change a field in a brewnote object.
@@ -97,8 +111,22 @@ class RecipeTests(APITestCase):
                                 {'body': 'A test brewnote'},
                                 format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Recipe.objects.count(), 1)
         posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
         self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
+
+    def test_delete_brewnote(self):
+        """
+        Ensure we can delete a brewnote object.
+        """
+        client = authenticate_user()
+        parent_recipe = Recipe.objects.filter(title='The Original')[0]
+        brewnotes = parent_recipe.brewnotes.all()
+        brewnote_id = str(brewnotes[0].pk)
+        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
+                   '/brewnotes/' + brewnote_id + '/'
+        response = client.delete(brew_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
 def authenticate_user(username='don.pablo'):

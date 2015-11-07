@@ -80,9 +80,7 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return BrewNote.objects.all().filter(
-            user=self.request.user,
-            recipe=recipe)
+        return BrewNote.objects.all().filter(recipe=recipe)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
