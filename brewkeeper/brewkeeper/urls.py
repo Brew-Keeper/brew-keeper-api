@@ -22,7 +22,7 @@ from api import views as api_views
 router = routers.SimpleRouter()
 router.register(r'users', api_views.UserViewSet, base_name='users')
 
-recipes_router = routers.NestedSimpleRouter(router,
+recipes_router = api_views.UserNestedRouter(router,
                                             r'users',
                                             lookup='user')
 recipes_router.register(r'recipes',

@@ -9,6 +9,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework_nested.routers import NestedSimpleRouter
 from .models import Recipe, Step, BrewNote
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
@@ -96,8 +97,8 @@ class UserViewSet(viewsets.GenericViewSet):
     lookup_field = 'username'
 
 
-# class UserRouter(NestedSimpleRouter):
-#     lookup_field = 'username'
+class UserNestedRouter(NestedSimpleRouter):
+    lookup_field = 'username'
 
 
 @api_view(['GET'])
