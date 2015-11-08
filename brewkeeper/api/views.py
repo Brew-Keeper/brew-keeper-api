@@ -43,7 +43,7 @@ class StepViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
         return Step.objects.all().filter(
-            user=self.request.user,
+            # user=self.request.user,
             recipe=recipe)
 
     def get_serializer_context(self):
