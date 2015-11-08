@@ -66,6 +66,7 @@ class RecipeDetailSerializer(RecipeListSerializer):
                         ])
 
     def create(self, validated_data):
+        '''username in context defined in RecipeViewSet in views.py'''
         # url_username = self.context['user_username']
         # url_user = User.objects.get(username=url_username, '')
 

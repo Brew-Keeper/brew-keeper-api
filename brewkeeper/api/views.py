@@ -4,7 +4,8 @@ from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
-from rest_framework import viewsets, status  # , mixins  # , permissions, serializers
+# , mixins  # , permissions, serializers
+from rest_framework import viewsets, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
@@ -18,8 +19,6 @@ from . import serializers as api_serializers
 # Create your views here.
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    # queryset = Recipe.objects.all()
-    # serializer_class = api_serializers.RecipeSerializer
 
     def get_queryset(self):
         return self.request.user.recipes.all()
@@ -28,7 +27,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context().copy()
         # When we add public, this will need to check if user is "public"
         # and set username to public in that case
-        context['username'] = self.request.user.username
+        if self.kwargs['user_username'] == 'public' \
+                and self.request.method == 'POST':
+            context['username'] = 'public'
+        else:
+            context['username'] = self.request.user.username
         return context
 
     def get_serializer_class(self):
@@ -97,8 +100,8 @@ class UserViewSet(viewsets.GenericViewSet):
         return User.objects.filter(username=self.kwargs['username'])
 
 
-class UserNestedRouter(NestedSimpleRouter):
-    lookup_field = 'username'
+# class UserNestedRouter(NestedSimpleRouter):
+#     lookup_field = 'username'
 
 
 @api_view(['GET'])
