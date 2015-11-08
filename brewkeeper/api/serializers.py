@@ -80,7 +80,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'password', 'email')
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {'password': {'write_only': True},
+                        'email': {'write_only': True}}
 
     def create(self, validated_data):
         user = super().create(validated_data)
