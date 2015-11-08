@@ -16,6 +16,11 @@ class StepSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
+        try:
+            validated_data['water_units']
+        except:
+            recipe = get_object_or_404(Recipe, pk=self.context['recipe_id'])
+            validated_data['water_units'] = recipe.water_units
         step = Step.objects.create(**validated_data)
         return step
 
