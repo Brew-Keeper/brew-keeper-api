@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+
             name='BrewNote',
             fields=[
                 ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
@@ -45,6 +46,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['-rating'],
+
                 'default_related_name': 'recipes',
             },
         ),
