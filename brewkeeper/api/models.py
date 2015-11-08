@@ -41,7 +41,7 @@ class Step(models.Model):
     step_body = models.CharField(max_length=255, blank=True, null=True)
     duration = models.PositiveSmallIntegerField(default=0)
     water_amount = models.PositiveSmallIntegerField(blank=True, null=True)
-    water_unit = models.CharField(max_length=12, blank=True, null=True)
+    water_units = models.CharField(max_length=12, blank=True, null=True)
 
     def __str__(self):
         return self.step_title

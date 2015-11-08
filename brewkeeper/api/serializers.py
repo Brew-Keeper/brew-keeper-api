@@ -12,7 +12,7 @@ class StepSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Step
         fields = ('id', 'recipe_id', 'step_number', 'step_title', 'step_body',
-                  'duration', 'water_amount')
+                  'duration', 'water_amount', 'water_units')
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
