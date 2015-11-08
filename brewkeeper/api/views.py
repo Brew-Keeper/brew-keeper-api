@@ -142,7 +142,7 @@ def login_user(request):
         return HttpResponseBadRequest('Invalid login.')
 
 
-@api_view(['POST'])
+# @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def change_password(request):
     username = request.data['username']
@@ -159,10 +159,71 @@ def change_password(request):
         return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 
-# @api_view(['POST'])
-# def logout_user(request):
-#     logout(request)
-#     return HttpResponse('Successfully logged out.')
+@api_view(['POST'])
+def reset_password(request):
+
+    try:
+        msg = EmailMessage(subject, message, from_email, [receiver])
+        msg.content_subtype = "html"
+        msg.send()
+
+
+    # SMTPserver = 'smtp.att.yahoo.com'
+    # sender =     'me@my_email_domain.net'
+    # destination = ['recipient@her_email_domain.com']
+    #
+    # USERNAME = "USER_NAME_FOR_INTERNET_SERVICE_PROVIDER"
+    # PASSWORD = "PASSWORD_INTERNET_SERVICE_PROVIDER"
+    #
+    # # typical values for text_subtype are plain, html, xml
+    # text_subtype = 'plain'
+    #
+    #
+    # content="""\
+    # To reset your password, simply follow this link:
+    # """
+    # subject="Sent from Brew Keeper"
+    #
+    # import sys
+    # import os
+    # import re
+    #
+    # from smtplib import SMTP_SSL as SMTP    # this invokes the secure SMTP protocol (port 465, uses SSL)
+    # # from smtplib import SMTP              # use this for standard SMTP protocol   (port 25, no encryption)
+    # from email.MIMEText import MIMEText
+    #
+    # try:
+    #     # Create message
+    #     msg = MIMEText(content, text_subtype)
+    #     msg['Subject']=       subject
+    #     msg['From']   = sender # some SMTP servers will do this automatically, not all
+    #
+    #     # Send message via gmail
+    #     conn = SMTP(SMTPserver)
+    #     conn.set_debuglevel(False)
+    #     conn.login(USERNAME, PASSWORD)
+    #     try:
+    #         conn.sendmail(sender, destination, msg.as_string())
+    #     finally:
+    #         conn.close()
+    #
+    # except Exception, exc:
+    #     sys.exit("mail failed; %s" % str(exc))  # give a error message
+
+
+#  http://stackoverflow.com/questions/6914687/django-sending-email/23402208#23402208
+
+#     username = request.data['username']
+#     user = User.objects.filter(username=username)
+#     if len(user) == 0:
+#         return HttpResponse('That username is not in the database. \
+#                             Please register or check for typos.')
+#     else:
+#         email = User.objects.email(username=username)
+#
+#     # if form.is_valid():
+#     #     form.save(from_email=user.email,
+#     #               email_template_name='path/to/your/email_template.html')
 
 
 @api_view(['POST'])
