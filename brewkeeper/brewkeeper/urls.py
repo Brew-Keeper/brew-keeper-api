@@ -25,6 +25,7 @@ router.register(r'users', api_views.UserViewSet, base_name='users')
 recipes_router = routers.NestedSimpleRouter(router,
                                             r'users',
                                             lookup='user')
+
 recipes_router.register(r'recipes',
                         api_views.RecipeViewSet,
                         base_name='recipe_list')
@@ -67,7 +68,7 @@ urlpatterns = [
 
     url(r'^api/change-pw/$', api_views.change_password, name='change_password'),
 
-    # url(r'^api/reset-pw/$', api_views.reset_password, name='reset_password'),
+    url(r'^api/reset-pw/$', api_views.reset_password, name='reset_password'),
 
     url(r'^api/whoami/$', api_views.whoami, name='who-am-i'),
 

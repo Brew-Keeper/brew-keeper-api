@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from .models import Recipe, Step, BrewNote
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
+import requests
 
 
 # Create your views here.
@@ -157,6 +158,28 @@ def change_password(request):
         u.save()
         token, created = Token.objects.get_or_create(user=u)
         return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes(())
+def reset_password(request):
+    username = request.data['username']
+    user = User.objects.filter(username=username)
+    if len(user) == 0:
+        return HttpResponse('That username is not in the database. ')
+    import random
+    reset_string = "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)])
+    recipient = user.email
+    key = 'key-6095ad530318a2a950c4472e21236724'
+    sandbox = 'sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org'
+    request_url = 'https://api.mailgun.net/v3/{}/messages'.format(sandbox)
+    request = requests.post(request_url, auth=('api', key), data={
+        'from': 'Mailgun Sandbox <postmaster@sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org>',
+        'to': recipient,
+        'subject': 'Brew Keeper Password Reset',
+        'text': 'To reset your Brew Keeper password, please copy this code: {}'.format('reset_string')' \n
+                'and paste it in the Reset Code field at {}'.format()
+    })
 
 
 # @api_view(['POST'])
