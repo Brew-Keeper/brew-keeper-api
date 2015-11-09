@@ -15,7 +15,7 @@ class Recipe(models.Model):
     bean_name = models.CharField(max_length=50, blank=True, null=True)
     roast = models.CharField(max_length=15, blank=True, null=True)
     grind = models.CharField(max_length=30, blank=True, null=True)
-    total_bean_amount = models.PositiveSmallIntegerField(blank=True, null=True)
+    total_bean_amount = models.FloatField(blank=True, null=True)
     bean_units = models.CharField(max_length=12, blank=True, null=True)
     water_type = models.CharField(max_length=50, blank=True, null=True)
     total_water_amount = models.PositiveSmallIntegerField(
