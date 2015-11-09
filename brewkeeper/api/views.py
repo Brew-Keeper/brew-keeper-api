@@ -99,6 +99,12 @@ class StepViewSet(viewsets.ModelViewSet):
         instance.recipe.save()
 
     def perform_destroy(self, instance):
+        curr_steps = instance.recipe.steps.all().order_by('step_number')
+        for step in curr_steps:
+            if step.step_number > instance.step_number:
+                step.step_number -= 1
+                step.save()
+
         new_total = instance.recipe.total_duration - instance.duration
         if new_total < 0:
             instance.recipe.total_duration = 0
