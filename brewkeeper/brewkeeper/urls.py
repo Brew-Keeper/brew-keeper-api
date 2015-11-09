@@ -43,7 +43,7 @@ recipes_brewnotes_router.register(r'brewnotes',
                                   api_views.BrewNoteViewSet,
                                   base_name='brewnote_list')
 
-recipes_ratings_router = routers.NestedSimpleRouter(router,
+recipes_ratings_router = routers.NestedSimpleRouter(recipes_router,
                                                     r'recipes',
                                                     lookup='recipe')
 
@@ -51,7 +51,7 @@ recipes_ratings_router.register(r'ratings',
                                 api_views.PublicRatingViewSet,
                                 base_name='public_ratings')
 
-recipes_comments_router = routers.NestedSimpleRouter(router,
+recipes_comments_router = routers.NestedSimpleRouter(recipes_router,
                                                      r'recipes',
                                                      lookup='recipe')
 

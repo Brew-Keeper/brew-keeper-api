@@ -68,13 +68,11 @@ class BrewNote(models.Model):
 
 class PublicRating(models.Model):
     recipe = models.ForeignKey(Recipe)
-    # user = models.OneToOneField(User)
+    user = models.OneToOneField(User)
     public_rating = models.PositiveSmallIntegerField()
 
-    # def __str__(self):
-    #     return "{} gave {} stars for {}".format(self.user, self.public_rating, self.recipe.title)
     def __str__(self):
-        return "don.pablo gave {} stars for {}".format(self.public_rating, self.recipe.title)
+        return "{} gave {} stars for {}".format(self.user, self.public_rating, self.recipe.title)
 
     class Meta:
         default_related_name = 'public_ratings'
@@ -82,13 +80,11 @@ class PublicRating(models.Model):
 
 class PublicComment(models.Model):
     recipe = models.ForeignKey(Recipe)
-    # user = models.OneToOneField(User)
+    user = models.OneToOneField(User)
     public_comment = models.TextField()
 
-    # def __str__(self):
-    #     return "{} said {} about {}".format(self.user, self.public_comment, self.recipe.title)
     def __str__(self):
-        return "don.pablo said {} about {}".format(self.public_comment, self.recipe.title)
+        return "{} said {} about {}".format(self.user, self.public_comment, self.recipe.title)
 
     class Meta:
         default_related_name = 'public_comments'

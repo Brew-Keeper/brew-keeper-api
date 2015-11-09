@@ -94,7 +94,7 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
         return PublicRating.objects.all().filter(
-            # user=self.request.user,
+            user=self.request.user,
             recipe=recipe)
 
     def get_serializer_context(self):
@@ -124,15 +124,13 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
         recipe.save()
 
 
-
 class PublicCommentViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.PublicCommentSerializer
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return PublicComment.objects.all().filter(
-            # user=self.request.user,
-            recipe=recipe)
+        return PublicComment.objects.all().filter(user=self.request.user,
+                                                  recipe=recipe)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
@@ -211,15 +209,15 @@ def change_password(request):
         return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST'])
-def reset_password(request):
-
-    try:
-        msg = EmailMessage(subject, message, from_email, [receiver])
-        msg.content_subtype = "html"
-        msg.send()
-
-
+# @api_view(['POST'])
+# def reset_password(request):
+#
+#     try:
+#         msg = EmailMessage(subject, message, from_email, [receiver])
+#         msg.content_subtype = "html"
+#         msg.send()
+#
+#
     # SMTPserver = 'smtp.att.yahoo.com'
     # sender =     'me@my_email_domain.net'
     # destination = ['recipient@her_email_domain.com']
