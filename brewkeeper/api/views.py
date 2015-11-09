@@ -70,6 +70,29 @@ class StepViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         '''Rearrange steps if necessary'''
         instance = self.get_object()
+        new_step_num = int(serializer.initial_data['step_number'])
+        if instance.step_number != new_step_num:
+            curr_steps = instance.recipe.steps.all().order_by('step_number')
+            overlap = False
+
+            # If new num is lower, + 1 to all steps between it an new val
+            if new_step_num < instance.step_number:
+                for step in curr_steps:
+                    if step.step_number == new_step_num:
+                        overlap = True
+                    if overlap and step.step_number < instance.step_number:
+                        step.step_number += 1
+                        step.save()
+
+            # If new num is bigger, - 1 from all steps between it and new val
+            if new_step_num > instance.step_number:
+                for step in curr_steps[::-1]:
+                    if step.step_number == new_step_num:
+                        overlap = True
+                    if overlap and step.step_number > instance.step_number:
+                        step.step_number -= 1
+                        step.save()
+
         serializer.save()
         total = instance.recipe.steps.aggregate(Sum('duration'))
         instance.recipe.total_duration = total['duration__sum']
