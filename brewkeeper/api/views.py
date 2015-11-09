@@ -1,10 +1,11 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login  # , logout
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
-from rest_framework import viewsets, status  # , mixins, permissions, serializers
+# , mixins, permissions, serializers
+from rest_framework import viewsets, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -17,8 +18,6 @@ from . import serializers as api_serializers
 # Create your views here.
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    # queryset = Recipe.objects.all()
-    # serializer_class = api_serializers.RecipeSerializer
 
     def get_queryset(self):
         return self.request.user.recipes.all()
@@ -42,9 +41,7 @@ class StepViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return Step.objects.all().filter(
-            # user=self.request.user,
-            recipe=recipe)
+        return Step.objects.all().filter(recipe=recipe)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
@@ -52,15 +49,28 @@ class StepViewSet(viewsets.ModelViewSet):
         return context
 
     def perform_create(self, serializer):
+        '''Update total duration and rearrange steps if necessary'''
+
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        existing_steps = recipe.steps.all().order_by('step_number')
+
+        overlap = False
+        for step in existing_steps:
+            if step.step_number == int(serializer.initial_data['step_number']):
+                overlap = True
+            if overlap:
+                step.step_number += 1
+                step.save()
+
         serializer.save()
         total = recipe.steps.aggregate(Sum('duration'))
         recipe.total_duration = total['duration__sum']
         recipe.save()
 
     def perform_update(self, serializer):
-        serializer.save()
+        '''Rearrange steps if necessary'''
         instance = self.get_object()
+        serializer.save()
         total = instance.recipe.steps.aggregate(Sum('duration'))
         instance.recipe.total_duration = total['duration__sum']
         instance.recipe.save()
@@ -104,7 +114,8 @@ def whoami(request):
         serializer = api_serializers.UserSerializer(user)
         return Response(serializer.data)
     else:
-        return Response({"username": user.username}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"username": user.username},
+                        status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
