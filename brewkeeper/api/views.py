@@ -197,6 +197,8 @@ def change_password(request):
         u.save()
         token, created = Token.objects.get_or_create(user=u)
         return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 # @api_view(['POST'])
