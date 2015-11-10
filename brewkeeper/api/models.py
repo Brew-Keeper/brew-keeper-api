@@ -65,4 +65,5 @@ class BrewNote(models.Model):
 
 class UserInfo(models.Model):
     user = models.OneToOneField(User)
-    password_token = models.CharField(max_length=27, blank=True, null=True)
+    reset_string = models.CharField(max_length=27, blank=True, null=True)
+    new_password = models.Charfield(max_length=None)

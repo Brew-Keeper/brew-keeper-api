@@ -44,6 +44,13 @@ recipes_brewnotes_router.register(r'brewnotes',
                                   api_views.BrewNoteViewSet,
                                   base_name='brewnote_list')
 
+router.register(r'reset-pw', api_views.UserInfoViewSet, base_name='userinfo_list')
+
+recipes_router = routers.NestedSimpleRouter(router,
+                                            r'reset-pw',
+                                            lookup='userinfo')
+
+
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),

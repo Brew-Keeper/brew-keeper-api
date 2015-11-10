@@ -144,7 +144,7 @@ def login_user(request):
 
 
 @api_view(['POST'])
-@permission_classes((AllowAny, ))
+@permission_classes((IsAuthenticated, ))
 def change_password(request):
     username = request.data['username']
     old_password = request.data['old_password']
@@ -161,7 +161,7 @@ def change_password(request):
 
 
 @api_view(['POST'])
-@permission_classes(())
+@permission_classes((IsAuthenticated, ))
 def reset_password(request):
     username = request.data['username']
     user = User.objects.filter(username=username)
@@ -178,14 +178,20 @@ def reset_password(request):
         'to': recipient,
         'subject': 'Brew Keeper Password Reset',
         'text': 'To reset your Brew Keeper password, please copy this code: {}'.format('reset_string')' \n
-                'and paste it in the Reset Code field at {}'.format()
+                'and paste it into the Reset Code field at: '
+        html="""\
+        <html>
+          # <head></head>
+          <body>
+            <p>
+              <br><a href="http://www.brew-keeper.firebase.com/user/~~~~~~~~~~~~~~~~~~~/a>
+            </p>
+          </body>
+        </html>
+        """
     })
-
-
-# @api_view(['POST'])
-# def logout_user(request):
-#     logout(request)
-#     return HttpResponse('Successfully logged out.')
+    user.set_password(new_password)
+    user.save()
 
 
 @api_view(['POST'])

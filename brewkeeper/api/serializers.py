@@ -86,3 +86,20 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class UserInfoSerializer(serializers.HyperlinkedModelSerializer):
+    username = serializers.PrimaryKeyRelatedField(many=False,
+                                                  read_only=True,
+                                                  source='user.username')
+
+    class Meta:
+        model = User
+        fields = ('username', 'new_password', 'reset_string')
+        extra_kwargs = {'new_password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
