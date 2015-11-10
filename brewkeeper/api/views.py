@@ -161,8 +161,8 @@ def change_password(request):
 
 
 @api_view(['POST'])
-@permission_classes((IsAuthenticated, ))
-def reset_password(request):
+@permission_classes((AllowAny, ))
+def send_reset_string(request):
     username = request.data['username']
     user = User.objects.filter(username=username)
     if len(user) == 0:
@@ -184,18 +184,42 @@ def reset_password(request):
           # <head></head>
           <body>
             <p>
-              <br><a href="http://www.brew-keeper.firebase.com/reset-pw/~~~~~~~~~~~~~~~~~~~/a>
+              <br><a href="http://www.brew-keeper.firebase.com/#/reset-pw" />
             </p>
           </body>
         </html>
         """
     })
+    userinfo = UserInfo(user_id=user.pk)
+    userinfo.reset_string = reset_string
+    userinfo.save()
+    if str(request.status_code) == '200':
+        return Response(status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    login(request, user)
+
+@api_view(['POST'])
+@permission_classes((AllowAny, ))
+def reset_password(request):
+    email = request.data['email']
+    new_password = request.data['new_password']
+    user = get_object_or_404(User, username=request.data['username'])
+    if user.email == request.data['email']:
+        try:
+            user.reset_string == request.data['reset_string']
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return HttpResponse('Email does not match.',
+                            status=status.HTTP_400_BAD_REQUEST)
+
     user.set_password(new_password)
-    return HttpResponse('Password successfully changed. You have been logged in.')
+    login(request, user)
+    return HttpResponse('Password successfully changed. You have been logged in.',
+                        status=status.HTTP_200_OK)
     user.save()
-    userinfo.delete()
+    user.userinfo.delete()
 
 
 @api_view(['POST'])
