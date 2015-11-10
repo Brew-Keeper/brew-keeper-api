@@ -184,14 +184,18 @@ def reset_password(request):
           # <head></head>
           <body>
             <p>
-              <br><a href="http://www.brew-keeper.firebase.com/user/~~~~~~~~~~~~~~~~~~~/a>
+              <br><a href="http://www.brew-keeper.firebase.com/reset-pw/~~~~~~~~~~~~~~~~~~~/a>
             </p>
           </body>
         </html>
         """
     })
+
+    login(request, user)
     user.set_password(new_password)
+    return HttpResponse('Password successfully changed. You have been logged in.')
     user.save()
+    userinfo.delete()
 
 
 @api_view(['POST'])

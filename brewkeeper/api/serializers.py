@@ -92,14 +92,24 @@ class UserInfoSerializer(serializers.HyperlinkedModelSerializer):
     username = serializers.PrimaryKeyRelatedField(many=False,
                                                   read_only=True,
                                                   source='user.username')
+    email = serializers.EmailField(allow_blank=False)
+    new_password = serializers.CharField(max_length=None)
+    reset_string = serializers.CharField(max_length=27)
 
     class Meta:
-        model = User
-        fields = ('username', 'new_password', 'reset_string')
+        model = UserInfo
+        fields = ('id', 'username', 'email', 'new_password', 'reset_string')
         extra_kwargs = {'new_password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = super().create(validated_data)
-        user.set_password(validated_data['password'])
+        userinfo = super().create(validated_data)
+        validated_data['user'] = user
+        validated_data['email'] = email
+        validated_data['new_passwrod'] = new_password
+        user = get_object_or_404(User, username=self.request.validated_data['username'])
+        if userinfo.user.email == self.request.validated_data['email'])
+        if userinfo.user.reset_string == self.request.validated_data['reset_string'])
+        user.set_password(validated_data['new_password'])
         user.save()
+        userinfo.delete()
         return user

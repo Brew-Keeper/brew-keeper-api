@@ -51,7 +51,6 @@ recipes_router = routers.NestedSimpleRouter(router,
                                             lookup='userinfo')
 
 
-
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
