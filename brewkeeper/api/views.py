@@ -10,9 +10,10 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .models import Recipe, Step, BrewNote
+from .models import Recipe, Step, BrewNote, UserInfo
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
+import requests
 
 
 # Create your views here.
@@ -183,7 +184,7 @@ def login_user(request):
 
 
 @api_view(['POST'])
-@permission_classes((AllowAny, ))
+@permission_classes((IsAuthenticated, ))
 def change_password(request):
     username = request.data['username']
     old_password = request.data['old_password']
@@ -201,10 +202,62 @@ def change_password(request):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-# @api_view(['POST'])
-# def logout_user(request):
-#     logout(request)
-#     return HttpResponse('Successfully logged out.')
+@api_view(['POST'])
+@permission_classes((AllowAny, ))
+def send_reset_string(request):
+    username = request.data['username']
+    user = User.objects.filter(username=username)
+    if len(user) == 0:
+        return HttpResponse('That username is not in the database. ')
+    import random
+    reset_string = "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)])
+    recipient = user[0].email
+    key = 'key-6095ad530318a2a950c4472e21236724'
+    sandbox = 'sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org'
+    request_url = 'https://api.mailgun.net/v3/{}/messages'.format(sandbox)
+    request = requests.post(request_url, auth=('api', key), data={
+        'from': 'Mailgun Sandbox <postmaster@sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org>',
+        'to': recipient,
+        'subject': 'Brew Keeper Password Reset',
+        'text': 'To reset your Brew Keeper password, please copy this code:\n\n{}'.format('reset_string') +
+                '\n\nPaste code into the Reset String field at: \n\nhttp://www.brew-keeper.firebase.com/#/reset-pw'
+    })
+    try:
+        userinfo = UserInfo.objects.get(user_id=user[0].pk)
+    except:
+        userinfo = UserInfo(user_id=user[0].pk)
+    userinfo.reset_string = reset_string
+    userinfo.save()
+    if str(request.status_code) == '200':
+        return Response(status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny, ))
+def reset_password(request):
+    new_password = request.data['new_password']
+    user = get_object_or_404(User, username=request.data['username'])
+    if user.email == request.data['email']:
+        try:
+            user.userinfo.reset_string == request.data['reset_string']
+        except:
+            return HttpResponse('Reset string does not match.',
+                                status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return HttpResponse('Email does not match.',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(new_password)
+    user.save()
+    user.userinfo.delete()
+    user = authenticate(username=request.data['username'], password=new_password)
+    login(request, user)
+    token, created = Token.objects.get_or_create(user=user)
+    return Response({'token': token.key,
+                     'message': 'Password successfully reset'},
+                    status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

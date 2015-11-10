@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from .models import Recipe, Step, BrewNote
+from .models import Recipe, Step, BrewNote, UserInfo
 
 
 class StepSerializer(serializers.HyperlinkedModelSerializer):
@@ -90,3 +90,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class UserInfoSerializer(serializers.HyperlinkedModelSerializer):
+    username = serializers.PrimaryKeyRelatedField(many=False,
+                                                  read_only=True,
+                                                  source='user.username')
+    email = serializers.EmailField(allow_blank=False)
+    new_password = serializers.CharField(max_length=None)
+    reset_string = serializers.CharField(max_length=27)
+
+    class Meta:
+        model = UserInfo
+        fields = ('id', 'username', 'email', 'new_password', 'reset_string')
+        extra_kwargs = {'new_password': {'write_only': True}}

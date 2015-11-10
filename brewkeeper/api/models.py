@@ -62,3 +62,9 @@ class BrewNote(models.Model):
     class Meta:
         ordering = ['-timestamp']
         default_related_name = 'brewnotes'
+
+
+class UserInfo(models.Model):
+    user = models.OneToOneField(User)
+    reset_string = models.CharField(max_length=27, blank=True, null=True)
+    # new_password = models.Charfield(max_length=None)
