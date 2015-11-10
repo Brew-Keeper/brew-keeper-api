@@ -10,7 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .models import Recipe, Step, BrewNote
+from .models import Recipe, Step, BrewNote, UserInfo
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
 import requests
@@ -219,18 +219,8 @@ def send_reset_string(request):
         'from': 'Mailgun Sandbox <postmaster@sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org>',
         'to': recipient,
         'subject': 'Brew Keeper Password Reset',
-        'text': 'To reset your Brew Keeper password, please copy this code: {}'.format('reset_string')' \n
-                'and paste it into the Reset Code field at: '
-        html="""\
-        <html>
-          # <head></head>
-          <body>
-            <p>
-              <br><a href="http://www.brew-keeper.firebase.com/#/reset-pw" />
-            </p>
-          </body>
-        </html>
-        """
+        'text': 'To reset your Brew Keeper password, please copy this code:\n\n{}'.format('reset_string') +
+                '\n\nPaste code into the Reset String field at: \n\nhttp://www.brew-keeper.firebase.com/#/reset-pw'
     })
     userinfo = UserInfo(user_id=user.pk)
     userinfo.reset_string = reset_string
@@ -244,7 +234,6 @@ def send_reset_string(request):
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def reset_password(request):
-    email = request.data['email']
     new_password = request.data['new_password']
     user = get_object_or_404(User, username=request.data['username'])
     if user.email == request.data['email']:
