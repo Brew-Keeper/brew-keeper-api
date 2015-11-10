@@ -12,10 +12,15 @@ class StepSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Step
         fields = ('id', 'recipe_id', 'step_number', 'step_title', 'step_body',
-                  'duration', 'water_amount')
+                  'duration', 'water_amount', 'water_units')
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
+        try:
+            validated_data['water_units']
+        except:
+            recipe = get_object_or_404(Recipe, pk=self.context['recipe_id'])
+            validated_data['water_units'] = recipe.water_units
         step = Step.objects.create(**validated_data)
         return step
 
@@ -39,11 +44,12 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
     username = serializers.PrimaryKeyRelatedField(many=False,
                                                   read_only=True,
                                                   source='user.username')
+    steps = StepSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
-                  'username'
+                  'username', 'steps', 'total_duration', 'water_units'
                   )
 
 
@@ -53,7 +59,6 @@ class RecipeDetailSerializer(RecipeListSerializer):
     #                                               source='user.username')
 
 
-    steps = StepSerializer(many=True, read_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
 
     class Meta:
@@ -62,8 +67,7 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'water_units', 'temp', 'total_duration',
-                        'steps', 'brewnotes'
+                        'temp', 'brewnotes'
                         ])
 
     def create(self, validated_data):
