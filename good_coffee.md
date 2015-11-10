@@ -13,4 +13,4 @@ If you were looking to make better coffee, you might buy specialty beans and eve
 The AeroPress allows a brewer a great degree of control over their cup of coffee. At first, the range of possibilities can be overwhelming—not just the possible combinations but also remembering what produced good results. Starting with a bean you are unfamiliar with can be like starting all over again. If only there was a way to keep track of your coffee experimentation&nbsp;.&nbsp;.&nbsp;.
 
 ##### Enter Brew Keeper
-Brew Keeper provides a way to *_create_*, *_brew_*, *_refine_*, and *_store notes on_* coffee recipes so you can zero in on your best brew for each bean. This site was designed with the AeroPress in mind, but can easily support other brewing equipment.
+Brew Keeper provides a way to *_create_*, *_brew_*, *_refine_*, and *_store notes on_* coffee recipes so you can zero in on your best brew for each bean. Recipes store the detailed components of coffee recipes and general notes can hold any additional information that you might not have a place for. This site was designed with the AeroPress in mind, but can easily support other brewing equipment.
