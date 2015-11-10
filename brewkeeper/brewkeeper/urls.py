@@ -44,12 +44,6 @@ recipes_brewnotes_router.register(r'brewnotes',
                                   api_views.BrewNoteViewSet,
                                   base_name='brewnote_list')
 
-router.register(r'reset-pw', api_views.UserInfoViewSet, base_name='userinfo_list')
-
-recipes_router = routers.NestedSimpleRouter(router,
-                                            r'reset-pw',
-                                            lookup='userinfo')
-
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -73,6 +67,8 @@ urlpatterns = [
     url(r'^api/logout/$', api_views.logout_user, name='logout'),
 
     url(r'^api/change-pw/$', api_views.change_password, name='change_password'),
+
+    url(r'^api/get-reset/$', api_views.send_reset_string, name='send_reset_string'),
 
     url(r'^api/reset-pw/$', api_views.reset_password, name='reset_password'),
 
