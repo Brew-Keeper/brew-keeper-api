@@ -1,5 +1,4 @@
-## Brew Keeper
-**Visit us on the web at [www.brew-keeper.com](www.brew-keeper.com)**
+## [Brew Keeper](http://www.brew-keeper.com)
 
 
 ##### Good Coffee
