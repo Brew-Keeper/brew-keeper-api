@@ -65,7 +65,6 @@ class RecipeDetailSerializer(RecipeListSerializer):
                         'bean_units', 'water_type', 'total_water_amount',
                         'temp', 'brewnotes', 'step_list'
                         ])
-        extra_kwargs = {'step_list': {'write_only': True}}
 
     def create(self, validated_data):
         user = get_object_or_404(User, username=self.context['username'])
