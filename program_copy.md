@@ -7,9 +7,9 @@ Brew Keeper provides a way to *_create_*, *_brew_*, *_refine_*, and *_store note
 The "BREW IT" function guides the user through each step of their brewing process. Additionally, they can enter brew notes and rate their recipe.
 
 
-Shay Hall - HTML5, CSS3/SCSS, JavaScript, jQuery, AngularJS
+Shay Hall - HTML5, CSS3/SCSS, JavaScript, AngularJS, jQuery
 
-Adam Hartz - Python3, Django, REST API, Heroku, Travis-CI, PostgreSQL, Mailgun, Git, GitHub, Postman, InDesign, Illustrator
+Adam Hartz - Python3, Django, Django REST framework, Heroku, Travis-CI, PostgreSQL, Mailgun, Git, GitHub, Postman, InDesign, Illustrator
 
 Kathleen Rauh - Python3, Django, Django REST Framework, Travis-CI, PostgreSQL, Mailgun, GitHub
 
