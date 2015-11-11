@@ -54,7 +54,7 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
-    step_list = serializers.CharField(allow_blank=True, write_only=True)
+    # step_list = serializers.CharField(allow_blank=True, write_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
 
     class Meta:
@@ -63,24 +63,22 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'temp', 'brewnotes', 'step_list'
+                        # 'temp', 'brewnotes',
+                        'step_list'
                         ])
 
     def create(self, validated_data):
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
-        try:
-            steps = validated_data.pop('step_list').split(',')
-        except:
-            pass
+        # steps = validated_data.pop('step_list').split(',')
         recipe = Recipe.objects.create(**validated_data)
-        if len(steps) != 0:
-            for n, step in enumerate(steps):
-                new_step = Step.objects.create(step_title=step.strip().title(),
-                                               recipe_id=recipe.pk,
-                                               duration=5,
-                                               step_number=(n + 1))
-                new_step.save()
+        # if len(steps) != 0:
+        #     for n, step in enumerate(steps):
+        #         new_step = Step.objects.create(step_title=step.strip().title(),
+        #                                        recipe_id=recipe.pk,
+        #                                        duration=5,
+        #                                        step_number=(n + 1))
+        #         new_step.save()
         return recipe
 
 
