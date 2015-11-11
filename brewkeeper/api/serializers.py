@@ -54,7 +54,7 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
-    step_list = serializers.TextArea(allow_blank=True)
+    step_list = serializers.CharField(allow_blank=True, write_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
 
     class Meta:
@@ -65,14 +65,20 @@ class RecipeDetailSerializer(RecipeListSerializer):
                         'bean_units', 'water_type', 'total_water_amount',
                         'temp', 'brewnotes', 'step_list'
                         ])
+        extra_kwargs = {'step_list': {'write_only': True}}
 
     def create(self, validated_data):
-        # url_user = self.context['url_user']
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
+        steps = validated_data.pop('step_list').split(',')
         recipe = Recipe.objects.create(**validated_data)
-        if validated_data['step_list'] != '':
-            
+        if len(steps) != 0:
+            for n, step in enumerate(steps):
+                new_step = Step.objects.create(step_title=step.strip().title(),
+                                               recipe_id=recipe.pk,
+                                               duration=5,
+                                               step_number=(n + 1))
+                new_step.save()
         return recipe
 
 
@@ -81,7 +87,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'password', 'email')
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {'password': {'write_only': True},
+                        'email': {'write_only': True}}
 
     def create(self, validated_data):
         user = super().create(validated_data)
