@@ -156,9 +156,11 @@ def register_user(request):
     password = request.data['password']
     user = User.objects.filter(username=username)
     if len(user) != 0:
-        return HttpResponse('That username is already in the database.')
+        return HttpResponse('That username is already in the database.',
+                            status=status.HTTP_400_BAD_REQUEST)
     if request.data.get('email', '') == '':
-        return HttpResponse('Email is a required field.')
+        return HttpResponse('Email is a required field.',
+                            status=status.HTTP_400_BAD_REQUEST)
     new_user = User(username=username)
     new_user.set_password(password)
     new_user.email = request.data.get('email', '')
