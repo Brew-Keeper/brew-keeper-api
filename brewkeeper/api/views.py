@@ -14,6 +14,7 @@ from .models import Recipe, Step, BrewNote, UserInfo
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
 import requests
+import os
 
 
 # Create your views here.
@@ -210,12 +211,13 @@ def send_reset_string(request):
     if len(user) == 0:
         return HttpResponse('That username is not in the database. ')
     import random
-    reset_string = "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)])
+    reset_string = "".join(
+        [random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)])
     recipient = user[0].email
-    key = 'key-6095ad530318a2a950c4472e21236724'
+    MAILGUN_KEY = os.environ['MAILGUN_KEY']
     sandbox = 'sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org'
     request_url = 'https://api.mailgun.net/v3/{}/messages'.format(sandbox)
-    request = requests.post(request_url, auth=('api', key), data={
+    request = requests.post(request_url, auth=('api', MAILGUN_KEY), data={
         'from': 'Mailgun Sandbox <postmaster@sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org>',
         'to': recipient,
         'subject': 'Brew Keeper Password Reset',
@@ -252,7 +254,8 @@ def reset_password(request):
     user.set_password(new_password)
     user.save()
     user.userinfo.delete()
-    user = authenticate(username=request.data['username'], password=new_password)
+    user = authenticate(username=request.data['username'],
+                        password=new_password)
     login(request, user)
     token, created = Token.objects.get_or_create(user=user)
     return Response({'token': token.key,
