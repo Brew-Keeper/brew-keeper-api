@@ -54,11 +54,7 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
-    # username = serializers.PrimaryKeyRelatedField(many=False,
-    #                                               read_only=True,
-    #                                               source='user.username')
-
-
+    step_list = serializers.TextArea(allow_blank=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
 
     class Meta:
@@ -67,7 +63,7 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'temp', 'brewnotes'
+                        'temp', 'brewnotes', 'step_list'
                         ])
 
     def create(self, validated_data):
@@ -75,6 +71,8 @@ class RecipeDetailSerializer(RecipeListSerializer):
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
         recipe = Recipe.objects.create(**validated_data)
+        if validated_data['step_list'] != '':
+            
         return recipe
 
 
