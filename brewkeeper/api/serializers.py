@@ -63,8 +63,8 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        # 'temp', 'brewnotes',
-                        'step_list'
+                        'temp', 'brewnotes',
+                        # 'step_list'
                         ])
 
     def create(self, validated_data):
