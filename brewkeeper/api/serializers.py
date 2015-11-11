@@ -69,7 +69,10 @@ class RecipeDetailSerializer(RecipeListSerializer):
     def create(self, validated_data):
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
-        steps = validated_data.pop('step_list').split(',')
+        try:
+            steps = validated_data.pop('step_list').split(',')
+        except:
+            pass
         recipe = Recipe.objects.create(**validated_data)
         if len(steps) != 0:
             for n, step in enumerate(steps):
