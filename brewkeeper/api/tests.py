@@ -97,19 +97,6 @@ class RecipeTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['body'], 'Test Brewnote')
 
-    def test_get_brewnote(self):
-        """
-        Ensure we can read a brewnote object.
-        """
-        parent_recipe = Recipe.objects.filter(title='The Original')[0]
-        brewnotes = parent_recipe.brewnotes.all()
-        brewnote_id = str(brewnotes[0].pk)
-        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
-                   '/brewnotes/' + brewnote_id + '/'
-        response = self.client.get(brew_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['body'], 'Test Brewnote')
-
 
     def test_patch_brewnote(self):
         """
@@ -141,7 +128,7 @@ class RecipeTests(APITestCase):
         brewnote_id = str(brewnotes[0].pk)
         brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
                    '/brewnotes/' + brewnote_id + '/'
-        response = self.client.delete(brew_url)
+        response = client.delete(brew_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
