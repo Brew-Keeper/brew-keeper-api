@@ -22,17 +22,21 @@ import os
 class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
+        if self.kwargs['user_username'] == 'public' \
+                and self.request.method == 'GET':
+            return User.objects.get(username='public').recipes.all()
         return self.request.user.recipes.all()
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
         # When we add public, this will need to check if user is "public"
         # and set username to public in that case
-        if self.kwargs['user_username'] == 'public' \
-                and self.request.method == 'POST':
-            context['username'] = 'public'
-        else:
-            context['username'] = self.request.user.username
+        # if self.kwargs['user_username'] == 'public' \
+        #         and self.request.method == 'POST':
+        #     context['username'] = 'public'
+        # else:
+        #     context['username'] = self.request.user.username
+        context['username'] = self.request.user.username
         return context
 
     def get_serializer_class(self):
@@ -175,8 +179,16 @@ def register_user(request):
     new_user.set_password(password)
     new_user.email = request.data.get('email', '')
     new_user.save()
+    # Add default recipes here
     token, created = Token.objects.get_or_create(user=new_user)
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+
+
+# def add_default_recipes(new_user):
+#     DEFAULT_RECIPES = [10, 12]
+#     for recipe_num in DEFAULT_RECIPES:
+#         def_rec = Recipe.objects.get(pk=recipe_num)
+
 
 
 @api_view(['POST'])
