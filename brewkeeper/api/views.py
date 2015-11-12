@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
 # , mixins, permissions, serializers
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -29,7 +29,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ordering_fields = ('rating',
                        'brew_count',
                        'created_on')
-
 
     def get_queryset(self):
         return self.request.user.recipes.all()
