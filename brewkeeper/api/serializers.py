@@ -54,11 +54,7 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
-    # username = serializers.PrimaryKeyRelatedField(many=False,
-    #                                               read_only=True,
-    #                                               source='user.username')
-
-
+    # step_list = serializers.CharField(allow_blank=True, write_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
 
     class Meta:
@@ -67,14 +63,22 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'temp', 'brewnotes'
+                        'temp', 'brewnotes',
+                        # 'step_list'
                         ])
 
     def create(self, validated_data):
-        # url_user = self.context['url_user']
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
+        # steps = validated_data.pop('step_list').split(',')
         recipe = Recipe.objects.create(**validated_data)
+        # if len(steps) != 0:
+        #     for n, step in enumerate(steps):
+        #         new_step = Step.objects.create(step_title=step.strip().title(),
+        #                                        recipe_id=recipe.pk,
+        #                                        duration=5,
+        #                                        step_number=(n + 1))
+        #         new_step.save()
         return recipe
 
 
@@ -83,7 +87,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'password', 'email')
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {'password': {'write_only': True},
+                        'email': {'write_only': True}}
 
     def create(self, validated_data):
         user = super().create(validated_data)
