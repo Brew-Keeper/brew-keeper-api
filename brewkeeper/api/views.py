@@ -4,12 +4,12 @@ from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
-# , mixins, permissions, serializers
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status  # , mixins, permissions, serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
+# from rest_framework_nested.routers import NestedSimpleRouter
 from .models import Recipe, Step, BrewNote, UserInfo
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
@@ -22,12 +22,20 @@ import os
 class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
+        if self.kwargs['user_username'] == 'public' \
+                and self.request.method == 'GET':
+            return User.objects.get(username='public').recipes.all()
         return self.request.user.recipes.all()
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
         # When we add public, this will need to check if user is "public"
         # and set username to public in that case
+        # if self.kwargs['user_username'] == 'public' \
+        #         and self.request.method == 'POST':
+        #     context['username'] = 'public'
+        # else:
+        #     context['username'] = self.request.user.username
         context['username'] = self.request.user.username
         return context
 
@@ -132,9 +140,15 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.GenericViewSet):
     # class UserViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsReadOnly,)
-    queryset = User.objects.filter(username='username')
     serializer_class = api_serializers.UserSerializer
     lookup_field = 'username'
+
+    def get_queryset(self):
+        return User.objects.filter(username=self.kwargs['username'])
+
+
+# class UserNestedRouter(NestedSimpleRouter):
+#     lookup_field = 'username'
 
 
 @api_view(['GET'])
@@ -165,8 +179,16 @@ def register_user(request):
     new_user.set_password(password)
     new_user.email = request.data.get('email', '')
     new_user.save()
+    # Add default recipes here
     token, created = Token.objects.get_or_create(user=new_user)
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+
+
+# def add_default_recipes(new_user):
+#     DEFAULT_RECIPES = [10, 12]
+#     for recipe_num in DEFAULT_RECIPES:
+#         def_rec = Recipe.objects.get(pk=recipe_num)
+
 
 
 @api_view(['POST'])
