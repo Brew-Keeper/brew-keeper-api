@@ -68,7 +68,7 @@ urlpatterns = [
 
     url(r'^api/change-pw/$', api_views.change_password, name='change_password'),
 
-    url(r'^api/get_reset/$', api_views.send_reset_string, name='get_reset'),
+    url(r'^api/get-reset/$', api_views.send_reset_string, name='get_reset'),
 
     url(r'^api/reset-pw/$', api_views.reset_password, name='reset_password'),
 
