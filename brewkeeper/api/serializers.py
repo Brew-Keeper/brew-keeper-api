@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from .models import Recipe, Step, BrewNote
+from .models import Recipe, Step, BrewNote, UserInfo
 
 
 class StepSerializer(serializers.HyperlinkedModelSerializer):
@@ -54,11 +54,7 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
-    # username = serializers.PrimaryKeyRelatedField(many=False,
-    #                                               read_only=True,
-    #                                               source='user.username')
-
-
+    # step_list = serializers.CharField(allow_blank=True, write_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
 
     class Meta:
@@ -67,17 +63,23 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'temp', 'brewnotes'
+                        'temp', 'brewnotes',
+                        # 'step_list'
                         ])
 
     def create(self, validated_data):
         '''username in context defined in RecipeViewSet in views.py'''
-        # url_username = self.context['user_username']
-        # url_user = User.objects.get(username=url_username, '')
-
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
+        # steps = validated_data.pop('step_list').split(',')
         recipe = Recipe.objects.create(**validated_data)
+        # if len(steps) != 0:
+        #     for n, step in enumerate(steps):
+        #         new_step = Step.objects.create(step_title=step.strip().title(),
+        #                                        recipe_id=recipe.pk,
+        #                                        duration=5,
+        #                                        step_number=(n + 1))
+        #         new_step.save()
         return recipe
 
 
@@ -94,3 +96,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class UserInfoSerializer(serializers.HyperlinkedModelSerializer):
+    username = serializers.PrimaryKeyRelatedField(many=False,
+                                                  read_only=True,
+                                                  source='user.username')
+    email = serializers.EmailField(allow_blank=False)
+    new_password = serializers.CharField(max_length=None)
+    reset_string = serializers.CharField(max_length=27)
+
+    class Meta:
+        model = UserInfo
+        fields = ('id', 'username', 'email', 'new_password', 'reset_string')
+        extra_kwargs = {'new_password': {'write_only': True}}

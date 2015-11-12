@@ -65,7 +65,6 @@ class RecipeTests(APITestCase):
         response = client.patch(orig_url,
                                 {'bean_name': 'Robusto'},
                                 format='json')
-        print(response.status_code, 'patch')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(orig_recipe[0].bean_name, 'Robusto')
 
