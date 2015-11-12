@@ -134,7 +134,12 @@ REST_FRAMEWORK = {
         # 'api.utils.SessionAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
+    # 'DEFAULT_PAGINATION_CLASS': 'apps.core.pagination.StandardResultsSetPagination'
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
