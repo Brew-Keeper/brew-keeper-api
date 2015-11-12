@@ -20,6 +20,16 @@ import os
 # Create your views here.
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ('title',
+                     'bean_name',
+                     'roast',
+                     'step__step_body',
+                     'brewnote__body')
+    ordering_fields = ('rating',
+                       'brew_count',
+                       'created_on')
+
 
     def get_queryset(self):
         return self.request.user.recipes.all()
