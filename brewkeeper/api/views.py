@@ -151,7 +151,7 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
         return PublicRating.objects.all().filter(
-            user=self.request.user,
+            # user=self.request.user,
             recipe=recipe)
 
     def get_serializer_context(self):
@@ -161,6 +161,7 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        serializer.validated_data['user'] = self.request.user
         serializer.save()
         rating_calc = recipe.public_ratings.aggregate(Avg('public_rating'))
         recipe.average_rating = rating_calc['public_rating__avg']
@@ -186,13 +187,17 @@ class PublicCommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return PublicComment.objects.all().filter(user=self.request.user,
-                                                  recipe=recipe)
+        return PublicComment.objects.all().filter(  # user=self.request.user,
+                                                    recipe=recipe)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
         return context
+
+    def perform_create(self, serializer):
+        serializer.validated_data['user'] = self.request.user
+        serializer.save()
 
 
 class UserViewSet(viewsets.GenericViewSet):
@@ -237,7 +242,7 @@ def register_user(request):
 
 
 def add_default_recipes(new_user):
-    DEFAULT_RECIPES = [190, 191, 192, 204]
+    DEFAULT_RECIPES = [7, 12, 13]  # , 190, 191, 192, 204]
     for recipe_num in DEFAULT_RECIPES:
         def_rec = Recipe.objects.get(pk=recipe_num)
         new_rec = Recipe(
