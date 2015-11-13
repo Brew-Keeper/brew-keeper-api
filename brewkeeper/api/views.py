@@ -20,7 +20,7 @@ import os
 # Create your views here.
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    filter_backends = (SearchFilter, OrderingFilter)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('title',
                      'bean_name',
                      'roast',
