@@ -4,13 +4,14 @@ from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
-from rest_framework import viewsets, status  # , mixins, permissions, serializers
+from rest_framework import viewsets, status, permissions  # , mixins, serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes  # , detail_route
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 # from rest_framework_nested.routers import NestedSimpleRouter
 from .models import Recipe, Step, BrewNote, UserInfo
+from .permissions import IsAskerOrPublic
 # from .permissions import IsAPIUser
 from . import serializers as api_serializers
 import requests
@@ -20,10 +21,11 @@ import os
 # Create your views here.
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAskerOrPublic,)
 
     def get_queryset(self):
         if self.kwargs['user_username'] == 'public' \
-                and self.request.method == 'GET':
+                and self.request.method in permissions.SAFE_METHODS:
             return User.objects.get(username='public').recipes.all()
         return self.request.user.recipes.all()
 
@@ -145,10 +147,6 @@ class UserViewSet(viewsets.GenericViewSet):
 
     def get_queryset(self):
         return User.objects.filter(username=self.kwargs['username'])
-
-
-# class UserNestedRouter(NestedSimpleRouter):
-#     lookup_field = 'username'
 
 
 @api_view(['GET'])
