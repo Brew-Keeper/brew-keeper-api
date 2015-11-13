@@ -215,6 +215,7 @@ def add_default_recipes(new_user):
             )
             new_step.save()
 
+
 @api_view(['POST'])
 def login_user(request):
     username = request.POST['username']
