@@ -75,6 +75,10 @@ urlpatterns = [
 
     url(r'^api/', include(recipes_brewnotes_router.urls)),
 
+    url(r'^api/', include(recipes_ratings_router.urls)),
+
+    url(r'^api/', include(recipes_comments_router.urls)),
+
     url(r'^api/register/$', api_views.register_user, name='register'),
 
     url(r'^api/login/$', 'rest_framework.authtoken.views.obtain_auth_token'),
