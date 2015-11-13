@@ -177,17 +177,43 @@ def register_user(request):
     new_user.set_password(password)
     new_user.email = request.data.get('email', '')
     new_user.save()
-    # Add default recipes here
+    add_default_recipes(new_user)
     token, created = Token.objects.get_or_create(user=new_user)
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
 
-# def add_default_recipes(new_user):
-#     DEFAULT_RECIPES = [10, 12]
-#     for recipe_num in DEFAULT_RECIPES:
-#         def_rec = Recipe.objects.get(pk=recipe_num)
-
-
+def add_default_recipes(new_user):
+    DEFAULT_RECIPES = [10, 12]
+    for recipe_num in DEFAULT_RECIPES:
+        def_rec = Recipe.objects.get(pk=recipe_num)
+        new_rec = Recipe(
+            title=def_rec.title,
+            user=new_user,
+            orientation=def_rec.orientation,
+            general_recipe_comment=def_rec.general_recipe_comment,
+            bean_name=def_rec.bean_name,
+            roast=def_rec.roast,
+            grind=def_rec.grind,
+            total_bean_amount=def_rec.total_bean_amount,
+            bean_units=def_rec.bean_units,
+            water_type=def_rec.water_type,
+            total_water_amount=def_rec.total_water_amount,
+            water_units=def_rec.water_units,
+            temp=def_rec.temp,
+            total_duration=def_rec.total_duration
+        )
+        new_rec.save()
+        for step in def_rec.steps.all():
+            new_step = Step(
+                recipe=new_rec,
+                step_number=step.step_number,
+                step_title=step.step_title,
+                step_body=step.step_body,
+                duration=step.duration,
+                water_amount=step.water_amount,
+                water_units=step.water_units
+            )
+            new_step.save()
 
 @api_view(['POST'])
 def login_user(request):
