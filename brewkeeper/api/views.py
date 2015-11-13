@@ -1,27 +1,33 @@
-from django.contrib.auth import authenticate, login  # , logout
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
-from rest_framework import viewsets, status, permissions  # , mixins, serializers
+from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework import viewsets, status, filters, permissions
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes  # , detail_route
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-# from rest_framework_nested.routers import NestedSimpleRouter
 from .models import Recipe, Step, BrewNote, UserInfo
 from .permissions import IsAskerOrPublic
-# from .permissions import IsAPIUser
 from . import serializers as api_serializers
 import requests
 import os
 
 
-# Create your views here.
-
 class RecipeViewSet(viewsets.ModelViewSet):
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ('title',
+                     'bean_name',
+                     'roast',
+                     'step__step_body',
+                     'brewnote__body')
+    ordering_fields = ('rating',
+                       'brew_count',
+                       'created_on')
     permission_classes = (IsAskerOrPublic,)
+
 
     def get_queryset(self):
         if self.kwargs['user_username'] == 'public' \
@@ -140,8 +146,6 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.GenericViewSet):
-    # class UserViewSet(viewsets.ModelViewSet):
-    # permission_classes = (IsReadOnly,)
     serializer_class = api_serializers.UserSerializer
     lookup_field = 'username'
 
@@ -233,9 +237,11 @@ def login_user(request):
         return HttpResponseBadRequest('Invalid login.')
 
 
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated, ))
 def change_password(request):
+    '''Allow Logged in user to change their password.'''
     username = request.data['username']
     old_password = request.data['old_password']
     new_password = request.data['new_password']
@@ -255,6 +261,8 @@ def change_password(request):
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def send_reset_string(request):
+    '''Email user with a random_string which will allow them to reset a
+    forgotten password.'''
     username = request.data['username']
     user = User.objects.filter(username=username)
     if len(user) == 0:
@@ -272,8 +280,7 @@ def send_reset_string(request):
         'to': recipient,
         'subject': 'Brew Keeper Password Reset',
         'text': 'To reset your Brew Keeper password, please copy this code\n\n{}'.format(reset_string) +
-        '\n\nand paste it into the Reset String field at: ' + html
-    })
+        '\n\nand paste it into the Reset String field at: ' + html})
     try:
         userinfo = UserInfo.objects.get(user_id=user[0].pk)
     except:
@@ -286,9 +293,13 @@ def send_reset_string(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+# User can use emailed reset_string to create a new password, login and
+# receive a new token.
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def reset_password(request):
+    '''User can use emailed reset_string to create a new password, login and
+    receive a new token.'''
     new_password = request.data['new_password']
     user = get_object_or_404(User, username=request.data['username'])
     if user.email == request.data['email']:
@@ -300,7 +311,6 @@ def reset_password(request):
     else:
         return HttpResponse('Email does not match.',
                             status=status.HTTP_400_BAD_REQUEST)
-
     user.set_password(new_password)
     user.save()
     user.userinfo.delete()
