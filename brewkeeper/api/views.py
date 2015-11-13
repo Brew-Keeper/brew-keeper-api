@@ -183,7 +183,7 @@ def register_user(request):
 
 
 def add_default_recipes(new_user):
-    DEFAULT_RECIPES = [10, 12]
+    DEFAULT_RECIPES = [190, 191, 192, 204]
     for recipe_num in DEFAULT_RECIPES:
         def_rec = Recipe.objects.get(pk=recipe_num)
         new_rec = Recipe(
