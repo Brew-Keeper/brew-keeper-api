@@ -49,8 +49,9 @@ class PublicRatingSerializer(serializers.HyperlinkedModelSerializer):
         model = PublicRating
         fields = ('id',
                   'recipe_id',
-                  'user_id',
+                  'user',
                   'public_rating')
+        extra_kwargs = {'user': {'write_only': True}}
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
@@ -67,7 +68,7 @@ class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
         model = PublicComment
         fields = ('id',
                   'recipe_id',
-                  'user_id',
+                  'user',
                   'public_comment')
 
     def create(self, validated_data):
