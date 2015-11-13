@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
-
 
 class Recipe(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -72,7 +70,9 @@ class PublicRating(models.Model):
     public_rating = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return "{} gave {} stars for {}".format(self.user, self.public_rating, self.recipe.title)
+        return "{} gave {} stars for {}".format(self.user.username,
+                                                self.public_rating,
+                                                self.recipe.title)
 
     class Meta:
         default_related_name = 'public_ratings'
@@ -80,11 +80,13 @@ class PublicRating(models.Model):
 
 class PublicComment(models.Model):
     recipe = models.ForeignKey(Recipe)
-    user = models.OneToOneField(User)
+    user = models.ForeignKey(User)
     public_comment = models.TextField()
 
     def __str__(self):
-        return "{} said {} about {}".format(self.user, self.public_comment, self.recipe.title)
+        return "{} said {} about {}".format(self.user.username,
+                                            self.public_comment,
+                                            self.recipe.title)
 
     class Meta:
         default_related_name = 'public_comments'
