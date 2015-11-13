@@ -15,7 +15,7 @@ class Recipe(models.Model):
     bean_name = models.CharField(max_length=50, blank=True, null=True)
     roast = models.CharField(max_length=15, blank=True, null=True)
     grind = models.CharField(max_length=30, blank=True, null=True)
-    total_bean_amount = models.PositiveSmallIntegerField(blank=True, null=True)
+    total_bean_amount = models.FloatField(blank=True, null=True)
     bean_units = models.CharField(max_length=12, blank=True, null=True)
     water_type = models.CharField(max_length=50, blank=True, null=True)
     total_water_amount = models.PositiveSmallIntegerField(
@@ -88,3 +88,8 @@ class PublicComment(models.Model):
 
     class Meta:
         default_related_name = 'public_comments'
+
+
+class UserInfo(models.Model):
+    user = models.OneToOneField(User, blank=True, null=True)
+    reset_string = models.CharField(max_length=27, blank=True, null=True)
