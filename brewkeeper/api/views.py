@@ -1,23 +1,20 @@
-from django.contrib.auth import authenticate, login  # , logout
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import ensure_csrf_cookie  # , csrf_exempt
-# , mixins, permissions, serializers
-from rest_framework import viewsets, status, filters
+from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework import viewsets, status, filters, permissions
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes  # , detail_route
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Recipe, Step, BrewNote, UserInfo
-# from .permissions import IsAPIUser
+from .permissions import IsAskerOrPublic
 from . import serializers as api_serializers
 import requests
 import os
 
-
-# Create your views here.
 
 class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
@@ -29,14 +26,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ordering_fields = ('rating',
                        'brew_count',
                        'created_on')
+    permission_classes = (IsAskerOrPublic,)
+
 
     def get_queryset(self):
+        if self.kwargs['user_username'] == 'public' \
+                and self.request.method in permissions.SAFE_METHODS:
+            return User.objects.get(username='public').recipes.all()
         return self.request.user.recipes.all()
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
         # When we add public, this will need to check if user is "public"
         # and set username to public in that case
+        # if self.kwargs['user_username'] == 'public' \
+        #         and self.request.method == 'POST':
+        #     context['username'] = 'public'
+        # else:
+        #     context['username'] = self.request.user.username
         context['username'] = self.request.user.username
         return context
 
@@ -139,11 +146,11 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.GenericViewSet):
-    # class UserViewSet(viewsets.ModelViewSet):
-    # permission_classes = (IsReadOnly,)
-    queryset = User.objects.filter(username='username')
     serializer_class = api_serializers.UserSerializer
     lookup_field = 'username'
+
+    def get_queryset(self):
+        return User.objects.filter(username=self.kwargs['username'])
 
 
 @api_view(['GET'])
@@ -174,8 +181,43 @@ def register_user(request):
     new_user.set_password(password)
     new_user.email = request.data.get('email', '')
     new_user.save()
+    add_default_recipes(new_user)
     token, created = Token.objects.get_or_create(user=new_user)
     return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+
+
+def add_default_recipes(new_user):
+    DEFAULT_RECIPES = [190, 191, 192, 204]
+    for recipe_num in DEFAULT_RECIPES:
+        def_rec = Recipe.objects.get(pk=recipe_num)
+        new_rec = Recipe(
+            title=def_rec.title,
+            user=new_user,
+            orientation=def_rec.orientation,
+            general_recipe_comment=def_rec.general_recipe_comment,
+            bean_name=def_rec.bean_name,
+            roast=def_rec.roast,
+            grind=def_rec.grind,
+            total_bean_amount=def_rec.total_bean_amount,
+            bean_units=def_rec.bean_units,
+            water_type=def_rec.water_type,
+            total_water_amount=def_rec.total_water_amount,
+            water_units=def_rec.water_units,
+            temp=def_rec.temp,
+            total_duration=def_rec.total_duration
+        )
+        new_rec.save()
+        for step in def_rec.steps.all():
+            new_step = Step(
+                recipe=new_rec,
+                step_number=step.step_number,
+                step_title=step.step_title,
+                step_body=step.step_body,
+                duration=step.duration,
+                water_amount=step.water_amount,
+                water_units=step.water_units
+            )
+            new_step.save()
 
 
 @api_view(['POST'])
@@ -195,9 +237,11 @@ def login_user(request):
         return HttpResponseBadRequest('Invalid login.')
 
 
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated, ))
 def change_password(request):
+    '''Allow Logged in user to change their password.'''
     username = request.data['username']
     old_password = request.data['old_password']
     new_password = request.data['new_password']
@@ -217,6 +261,8 @@ def change_password(request):
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def send_reset_string(request):
+    '''Email user with a random_string which will allow them to reset a
+    forgotten password.'''
     username = request.data['username']
     user = User.objects.filter(username=username)
     if len(user) == 0:
@@ -234,8 +280,7 @@ def send_reset_string(request):
         'to': recipient,
         'subject': 'Brew Keeper Password Reset',
         'text': 'To reset your Brew Keeper password, please copy this code\n\n{}'.format(reset_string) +
-        '\n\nand paste it into the Reset String field at: ' + html
-    })
+        '\n\nand paste it into the Reset String field at: ' + html})
     try:
         userinfo = UserInfo.objects.get(user_id=user[0].pk)
     except:
@@ -248,9 +293,13 @@ def send_reset_string(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+# User can use emailed reset_string to create a new password, login and
+# receive a new token.
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def reset_password(request):
+    '''User can use emailed reset_string to create a new password, login and
+    receive a new token.'''
     new_password = request.data['new_password']
     user = get_object_or_404(User, username=request.data['username'])
     if user.email == request.data['email']:
@@ -262,7 +311,6 @@ def reset_password(request):
     else:
         return HttpResponse('Email does not match.',
                             status=status.HTTP_400_BAD_REQUEST)
-
     user.set_password(new_password)
     user.save()
     user.userinfo.delete()

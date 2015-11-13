@@ -68,6 +68,7 @@ class RecipeDetailSerializer(RecipeListSerializer):
                         ])
 
     def create(self, validated_data):
+        '''username in context defined in RecipeViewSet in views.py'''
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
         # steps = validated_data.pop('step_list').split(',')
