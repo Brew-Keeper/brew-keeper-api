@@ -89,19 +89,19 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
                                                   source='user.username')
     steps = StepSerializer(many=True, read_only=True)
     public_ratings = PublicRatingSerializer(many=True, read_only=True)
-    public_comments = PublicCommentSerializer(many=True, read_only=True)
 
 
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
                   'username', 'steps', 'total_duration', 'water_units',
-                  'public_ratings', 'public_comments'
+                  'public_ratings'
                   )
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
+    public_comments = PublicCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
@@ -109,8 +109,8 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'brewnotes', 'average_rating', 'temp'
-                        ])
+                        'brewnotes', 'average_rating', 'temp',
+                        'public_comments'])
 
     def create(self, validated_data):
         '''username in context defined in RecipeViewSet in views.py'''
