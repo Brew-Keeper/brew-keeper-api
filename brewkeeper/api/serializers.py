@@ -44,6 +44,8 @@ class PublicRatingSerializer(serializers.HyperlinkedModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(many=False,
                                                    read_only=True,
                                                    source='recipe')
+    user = serializers.PrimaryKeyRelatedField(many=False,
+                                              read_only=True)
 
     class Meta:
         model = PublicRating
@@ -55,6 +57,7 @@ class PublicRatingSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
+        validated_data['user'] = self.context['user']
         public_rating = PublicRating.objects.create(**validated_data)
         return public_rating
 
@@ -63,6 +66,8 @@ class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(many=False,
                                                    read_only=True,
                                                    source='recipe')
+    user = serializers.PrimaryKeyRelatedField(many=False,
+                                              read_only=True)
 
     class Meta:
         model = PublicComment
@@ -73,6 +78,7 @@ class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
+        validated_data['user'] = self.context['user']
         public_comment = PublicComment.objects.create(**validated_data)
         return public_comment
 
