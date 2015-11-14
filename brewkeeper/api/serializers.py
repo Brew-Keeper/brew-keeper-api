@@ -74,7 +74,8 @@ class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id',
                   'recipe_id',
                   'user',
-                  'public_comment')
+                  'public_comment',
+                  'comment_timestamp')
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
