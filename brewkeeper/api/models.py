@@ -70,10 +70,10 @@ class PublicRating(models.Model):
     public_rating = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return "{} gave {} stars for {}".format(self.user.username,
-                                                self.public_rating,
-                                                self.recipe.title)
-
+        return "{} gave {} stars for {} at {}".format(self.user.username,
+                                                      self.public_rating,
+                                                      self.recipe.title)
+                                                      
     class Meta:
         default_related_name = 'public_ratings'
 
@@ -82,11 +82,13 @@ class PublicComment(models.Model):
     recipe = models.ForeignKey(Recipe)
     user = models.ForeignKey(User)
     public_comment = models.TextField()
+    comment_timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return "{} said {} about {}".format(self.user.username,
-                                            self.public_comment,
-                                            self.recipe.title)
+        return "{} said {} about {} at {}".format(self.user.username,
+                                                  self.public_comment,
+                                                  self.recipe.title,
+                                                  self.comment_timestamp)
 
     class Meta:
         default_related_name = 'public_comments'
