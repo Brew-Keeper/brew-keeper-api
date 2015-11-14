@@ -45,10 +45,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return context
 
     def get_serializer_class(self):
+        if self.kwargs['user_username'] == 'public':
+            if self.action is 'list':
+                return api_serializers.PublicRecipeListSerializer
+            else:
+                return api_serializers.PublicRecipeDetailSerializer
         if self.action is 'list':
             return api_serializers.RecipeListSerializer
         else:
             return api_serializers.RecipeDetailSerializer
+
 
 
 class StepViewSet(viewsets.ModelViewSet):
