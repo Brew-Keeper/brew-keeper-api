@@ -44,20 +44,22 @@ class PublicRatingSerializer(serializers.HyperlinkedModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(many=False,
                                                    read_only=True,
                                                    source='recipe')
-    user = serializers.PrimaryKeyRelatedField(many=False,
-                                              read_only=True)
+    username = serializers.PrimaryKeyRelatedField(many=False,
+                                                  read_only=True,
+                                                  source='user.username')
 
     class Meta:
         model = PublicRating
         fields = ('id',
                   'recipe_id',
-                  'user',
+                  'username',
                   'public_rating')
-        extra_kwargs = {'user': {'write_only': True}}
+        extra_kwargs = {'username': {'write_only': True}}
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
-        validated_data['user'] = self.context['user']
+        user = get_object_or_404(User, username=self.context['username'])
+        validated_data['user'] = user
         public_rating = PublicRating.objects.create(**validated_data)
         return public_rating
 
@@ -66,20 +68,22 @@ class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
     recipe_id = serializers.PrimaryKeyRelatedField(many=False,
                                                    read_only=True,
                                                    source='recipe')
-    user = serializers.PrimaryKeyRelatedField(many=False,
-                                              read_only=True)
+    username = serializers.PrimaryKeyRelatedField(many=False,
+                                                  read_only=True,
+                                                  source='user.username')
 
     class Meta:
         model = PublicComment
         fields = ('id',
                   'recipe_id',
-                  'user',
+                  'username',
                   'public_comment',
                   'comment_timestamp')
 
     def create(self, validated_data):
         validated_data['recipe_id'] = self.context['recipe_id']
-        validated_data['user'] = self.context['user']
+        user = get_object_or_404(User, username=self.context['username'])
+        validated_data['user'] = user
         public_comment = PublicComment.objects.create(**validated_data)
         return public_comment
 
@@ -90,12 +94,10 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
                                                   source='user.username')
     steps = StepSerializer(many=True, read_only=True)
 
-
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
-                  'username', 'steps', 'total_duration', 'water_units',
-                  )
+                  'username', 'steps', 'total_duration', 'water_units')
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
@@ -107,7 +109,7 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'brewnotes', 'average_rating', 'temp'])
+                        'brewnotes', 'temp'])
 
     def create(self, validated_data):
         '''username in context defined in RecipeViewSet in views.py'''
@@ -124,27 +126,24 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
     steps = StepSerializer(many=True, read_only=True)
     public_ratings = PublicRatingSerializer(many=True, read_only=True)
 
-
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
                   'username', 'steps', 'total_duration', 'water_units',
-                  'public_ratings'
-                  )
+                  'average_rating', 'public_ratings')
 
 
-class PublicRecipeDetailSerializer(RecipeListSerializer):
+class PublicRecipeDetailSerializer(PublicRecipeListSerializer):
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
     public_comments = PublicCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
-        fields = tuple(list(RecipeListSerializer.Meta.fields) +
+        fields = tuple(list(PublicRecipeListSerializer.Meta.fields) +
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'brewnotes', 'average_rating', 'temp',
-                        'public_comments'])
+                        'brewnotes', 'temp', 'public_comments'])
 
     def create(self, validated_data):
         '''username in context defined in RecipeViewSet in views.py'''
