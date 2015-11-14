@@ -17,3 +17,6 @@ The AeroPress allows a brewer a great degree of control over their cup of coffee
 
 ##### Enter Brew Keeper
 Brew Keeper provides a way to **create**, **brew**, **refine**, and **store notes on** coffee recipes so you can zero in on your best brew for each bean. Recipes store the detailed components of coffee recipes and general notes can hold any additional information that you might not have a place for. This site was designed with the AeroPress in mind, but can easily support other brewing equipment.
+
+### Models and Endpoints
+* Please see [Development Notes](https://github.com/Brew-Keeper/brew-keeper-api/wiki/Development-Notes)
