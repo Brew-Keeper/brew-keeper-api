@@ -88,19 +88,20 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
                                                   read_only=True,
                                                   source='user.username')
     steps = StepSerializer(many=True, read_only=True)
+    public_ratings = PublicRatingSerializer(many=True, read_only=True)
+    public_comments = PublicCommentSerializer(many=True, read_only=True)
+
 
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
-                  'username', 'steps', 'total_duration', 'water_units'
+                  'username', 'steps', 'total_duration', 'water_units',
+                  'public_ratings', 'public_comments'
                   )
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
-    # step_list = serializers.CharField(allow_blank=True, write_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
-    public_ratings = PublicRatingSerializer(many=True, read_only=True)
-    public_comments = PublicCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
@@ -108,8 +109,7 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'brewnotes', 'average_rating', 'temp',
-                        'public_ratings', 'public_comments'
+                        'brewnotes', 'average_rating', 'temp'
                         ])
 
     def create(self, validated_data):
