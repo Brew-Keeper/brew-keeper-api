@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
-
 
 class Recipe(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -24,6 +22,7 @@ class Recipe(models.Model):
     temp = models.PositiveSmallIntegerField(blank=True, null=True)
     brew_count = models.PositiveIntegerField(default=0)
     total_duration = models.PositiveSmallIntegerField(default=0)
+    average_rating = models.FloatField(default=0)
 
     def __str__(self):
         return "{} rated as: {}, bean: {} roast: {}".format(
@@ -47,6 +46,7 @@ class Step(models.Model):
         return self.step_title
 
     class Meta:
+        # unique_together = ('recipe_pk', 'step_number')
         ordering = ['step_number']
         default_related_name = 'steps'
 
@@ -64,7 +64,34 @@ class BrewNote(models.Model):
         default_related_name = 'brewnotes'
 
 
+class PublicRating(models.Model):
+    recipe = models.ForeignKey(Recipe)
+    user = models.OneToOneField(User)
+    public_rating = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return "{} gave {} stars for {}".format(self.user.username,
+                                                self.public_rating,
+                                                self.recipe.title)
+
+    class Meta:
+        default_related_name = 'public_ratings'
+
+
+class PublicComment(models.Model):
+    recipe = models.ForeignKey(Recipe)
+    user = models.ForeignKey(User)
+    public_comment = models.TextField()
+
+    def __str__(self):
+        return "{} said {} about {}".format(self.user.username,
+                                            self.public_comment,
+                                            self.recipe.title)
+
+    class Meta:
+        default_related_name = 'public_comments'
+
+
 class UserInfo(models.Model):
     user = models.OneToOneField(User, blank=True, null=True)
     reset_string = models.CharField(max_length=27, blank=True, null=True)
-    # new_password = models.Charfield(max_length=None)

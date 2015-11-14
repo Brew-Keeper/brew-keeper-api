@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from .models import Recipe, Step, BrewNote, UserInfo
+from .models import Recipe, Step, BrewNote, PublicRating, PublicComment, UserInfo
 
 
 class StepSerializer(serializers.HyperlinkedModelSerializer):
@@ -40,22 +40,68 @@ class BrewNoteSerializer(serializers.HyperlinkedModelSerializer):
         return brew_note
 
 
+class PublicRatingSerializer(serializers.HyperlinkedModelSerializer):
+    recipe_id = serializers.PrimaryKeyRelatedField(many=False,
+                                                   read_only=True,
+                                                   source='recipe')
+    user = serializers.PrimaryKeyRelatedField(many=False,
+                                              read_only=True)
+
+    class Meta:
+        model = PublicRating
+        fields = ('id',
+                  'recipe_id',
+                  'user',
+                  'public_rating')
+        extra_kwargs = {'user': {'write_only': True}}
+
+    def create(self, validated_data):
+        validated_data['recipe_id'] = self.context['recipe_id']
+        validated_data['user'] = self.context['user']
+        public_rating = PublicRating.objects.create(**validated_data)
+        return public_rating
+
+
+class PublicCommentSerializer(serializers.HyperlinkedModelSerializer):
+    recipe_id = serializers.PrimaryKeyRelatedField(many=False,
+                                                   read_only=True,
+                                                   source='recipe')
+    user = serializers.PrimaryKeyRelatedField(many=False,
+                                              read_only=True)
+
+    class Meta:
+        model = PublicComment
+        fields = ('id',
+                  'recipe_id',
+                  'user',
+                  'public_comment')
+
+    def create(self, validated_data):
+        validated_data['recipe_id'] = self.context['recipe_id']
+        validated_data['user'] = self.context['user']
+        public_comment = PublicComment.objects.create(**validated_data)
+        return public_comment
+
+
 class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
     username = serializers.PrimaryKeyRelatedField(many=False,
                                                   read_only=True,
                                                   source='user.username')
     steps = StepSerializer(many=True, read_only=True)
+    public_ratings = PublicRatingSerializer(many=True, read_only=True)
+
 
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
-                  'username', 'steps', 'total_duration', 'water_units'
+                  'username', 'steps', 'total_duration', 'water_units',
+                  'public_ratings'
                   )
 
 
 class RecipeDetailSerializer(RecipeListSerializer):
-    # step_list = serializers.CharField(allow_blank=True, write_only=True)
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
+    public_comments = PublicCommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Recipe
@@ -63,23 +109,14 @@ class RecipeDetailSerializer(RecipeListSerializer):
                        ['created_on', 'last_brewed_on', 'orientation',
                         'general_recipe_comment', 'grind', 'total_bean_amount',
                         'bean_units', 'water_type', 'total_water_amount',
-                        'temp', 'brewnotes',
-                        # 'step_list'
-                        ])
+                        'brewnotes', 'average_rating', 'temp',
+                        'public_comments'])
 
     def create(self, validated_data):
         '''username in context defined in RecipeViewSet in views.py'''
         user = get_object_or_404(User, username=self.context['username'])
         validated_data['user'] = user
-        # steps = validated_data.pop('step_list').split(',')
         recipe = Recipe.objects.create(**validated_data)
-        # if len(steps) != 0:
-        #     for n, step in enumerate(steps):
-        #         new_step = Step.objects.create(step_title=step.strip().title(),
-        #                                        recipe_id=recipe.pk,
-        #                                        duration=5,
-        #                                        step_number=(n + 1))
-        #         new_step.save()
         return recipe
 
 

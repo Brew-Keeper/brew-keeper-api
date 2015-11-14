@@ -44,6 +44,21 @@ recipes_brewnotes_router.register(r'brewnotes',
                                   api_views.BrewNoteViewSet,
                                   base_name='brewnote_list')
 
+recipes_ratings_router = routers.NestedSimpleRouter(recipes_router,
+                                                    r'recipes',
+                                                    lookup='recipe')
+
+recipes_ratings_router.register(r'ratings',
+                                api_views.PublicRatingViewSet,
+                                base_name='public_ratings')
+
+recipes_comments_router = routers.NestedSimpleRouter(recipes_router,
+                                                     r'recipes',
+                                                     lookup='recipe')
+
+recipes_comments_router.register(r'comments',
+                                 api_views.PublicCommentViewSet,
+                                 base_name='public_comments')
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -60,6 +75,10 @@ urlpatterns = [
 
     url(r'^api/', include(recipes_brewnotes_router.urls)),
 
+    url(r'^api/', include(recipes_ratings_router.urls)),
+
+    url(r'^api/', include(recipes_comments_router.urls)),
+
     url(r'^api/register/$', api_views.register_user, name='register'),
 
     url(r'^api/login/$', 'rest_framework.authtoken.views.obtain_auth_token'),
@@ -73,6 +92,10 @@ urlpatterns = [
     url(r'^api/reset-pw/$', api_views.reset_password, name='reset_password'),
 
     url(r'^api/whoami/$', api_views.whoami, name='who-am-i'),
+
+    url(r'^api/users/don\.pablo/', include(recipes_ratings_router.urls)),
+
+    url(r'^api/users/don\.pablo/', include(recipes_comments_router.urls)),
 
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')),

@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.db.models import Sum
+from django.db.models import Sum, Avg
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .models import Recipe, Step, BrewNote, UserInfo
+from .models import Recipe, Step, BrewNote, PublicRating, PublicComment, UserInfo
 from .permissions import IsAskerOrPublic
 from . import serializers as api_serializers
 import requests
@@ -143,6 +143,60 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
         return context
 
 
+class PublicRatingViewSet(viewsets.ModelViewSet):
+    serializer_class = api_serializers.PublicRatingSerializer
+
+    def get_queryset(self):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        return PublicRating.objects.all().filter(recipe=recipe)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context().copy()
+        context['recipe_id'] = self.kwargs['recipe_pk']
+        context['user'] = self.request.user
+        return context
+
+    def perform_create(self, serializer):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        serializer.initial_data['user'] = self.request.user
+        serializer.save()
+        rating_calc = recipe.public_ratings.aggregate(Avg('public_rating'))
+        recipe.average_rating = rating_calc['public_rating__avg']
+        recipe.save()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        instance = self.get_object()
+        rating_calc = instance.recipe.public_ratings.aggregate(Avg('public_rating'))
+        instance.recipe.average_rating = rating_calc['public_rating__avg']
+        instance.recipe.save()
+
+    def perform_destroy(self, instance):
+        recipe = instance.recipe
+        instance.delete()
+        rating_calc = recipe.public_ratings.aggregate(Avg('public_rating'))
+        recipe.average_rating = rating_calc['public_rating__avg']
+        recipe.save()
+
+
+class PublicCommentViewSet(viewsets.ModelViewSet):
+    serializer_class = api_serializers.PublicCommentSerializer
+
+    def get_queryset(self):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        return PublicComment.objects.all().filter(recipe=recipe)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context().copy()
+        context['recipe_id'] = self.kwargs['recipe_pk']
+        context['user'] = self.request.user
+        return context
+
+    def perform_create(self, serializer):
+        serializer.validated_data['user'] = self.request.user
+        serializer.save()
+
+
 class UserViewSet(viewsets.GenericViewSet):
     serializer_class = api_serializers.UserSerializer
     lookup_field = 'username'
@@ -185,7 +239,7 @@ def register_user(request):
 
 
 def add_default_recipes(new_user):
-    DEFAULT_RECIPES = [190, 191, 192, 204]
+    DEFAULT_RECIPES = [7, 12, 13]  # , 190, 191, 192, 204]
     for recipe_num in DEFAULT_RECIPES:
         def_rec = Recipe.objects.get(pk=recipe_num)
         new_rec = Recipe(
@@ -233,7 +287,6 @@ def login_user(request):
     else:
         # Return an 'invalid login' error message.
         return HttpResponseBadRequest('Invalid login.')
-
 
 
 @api_view(['POST'])
@@ -291,8 +344,6 @@ def send_reset_string(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# User can use emailed reset_string to create a new password, login and
-# receive a new token.
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def reset_password(request):
