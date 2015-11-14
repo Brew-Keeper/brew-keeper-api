@@ -89,6 +89,39 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
                                                   read_only=True,
                                                   source='user.username')
     steps = StepSerializer(many=True, read_only=True)
+
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
+                  'username', 'steps', 'total_duration', 'water_units',
+                  )
+
+
+class RecipeDetailSerializer(RecipeListSerializer):
+    brewnotes = BrewNoteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = tuple(list(RecipeListSerializer.Meta.fields) +
+                       ['created_on', 'last_brewed_on', 'orientation',
+                        'general_recipe_comment', 'grind', 'total_bean_amount',
+                        'bean_units', 'water_type', 'total_water_amount',
+                        'brewnotes', 'average_rating', 'temp'])
+
+    def create(self, validated_data):
+        '''username in context defined in RecipeViewSet in views.py'''
+        user = get_object_or_404(User, username=self.context['username'])
+        validated_data['user'] = user
+        recipe = Recipe.objects.create(**validated_data)
+        return recipe
+
+
+class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
+    username = serializers.PrimaryKeyRelatedField(many=False,
+                                                  read_only=True,
+                                                  source='user.username')
+    steps = StepSerializer(many=True, read_only=True)
     public_ratings = PublicRatingSerializer(many=True, read_only=True)
 
 
@@ -100,7 +133,7 @@ class RecipeListSerializer(serializers.HyperlinkedModelSerializer):
                   )
 
 
-class RecipeDetailSerializer(RecipeListSerializer):
+class PublicRecipeDetailSerializer(RecipeListSerializer):
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
     public_comments = PublicCommentSerializer(many=True, read_only=True)
 
