@@ -37,14 +37,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
-        # When we add public, this will need to check if user is "public"
-        # and set username to public in that case
-        # if self.kwargs['user_username'] == 'public' \
-        #         and self.request.method == 'POST':
-        #     context['username'] = 'public'
-        # else:
-        #     context['username'] = self.request.user.username
-        context['username'] = self.request.user.username
+        if self.kwargs['user_username'] == 'public' \
+                and self.request.method == 'POST':
+            context['username'] = 'public'
+        else:
+            context['username'] = self.request.user.username
         return context
 
     def get_serializer_class(self):
@@ -56,6 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class StepViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.StepSerializer
+    permission_classes = (IsAskerOrPublic,)
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
