@@ -53,7 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class StepViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.StepSerializer
-    permission_classes = (IsAskerOrPublic,)
+    # permission_classes = (IsAskerOrPublic,)
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
