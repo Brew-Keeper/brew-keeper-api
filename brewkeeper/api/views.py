@@ -45,10 +45,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return context
 
     def get_serializer_class(self):
+        if self.kwargs['user_username'] == 'public':
+            if self.action is 'list':
+                return api_serializers.PublicRecipeListSerializer
+            else:
+                return api_serializers.PublicRecipeDetailSerializer
         if self.action is 'list':
             return api_serializers.RecipeListSerializer
         else:
             return api_serializers.RecipeDetailSerializer
+
 
 
 class StepViewSet(viewsets.ModelViewSet):
@@ -153,7 +159,7 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
-        context['user'] = self.request.user
+        context['username'] = self.request.user.username
         return context
 
     def perform_create(self, serializer):
@@ -189,7 +195,7 @@ class PublicCommentViewSet(viewsets.ModelViewSet):
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
-        context['user'] = self.request.user
+        context['username'] = self.request.user.username
         return context
 
     def perform_create(self, serializer):
