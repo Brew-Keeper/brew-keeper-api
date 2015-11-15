@@ -45,17 +45,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return context
 
     def get_serializer_class(self):
-        try:
-            if self.kwargs['user_username'] == 'public':
-                if self.action is 'list':
-                    return api_serializers.PublicRecipeListSerializer
-                else:
-                    return api_serializers.PublicRecipeDetailSerializer
-        except:
+        if self.kwargs['user_username'] == 'public':
             if self.action is 'list':
-                return api_serializers.RecipeListSerializer
+                return api_serializers.PublicRecipeListSerializer
             else:
-                return api_serializers.RecipeDetailSerializer
+                return api_serializers.PublicRecipeDetailSerializer
+        if self.action is 'list':
+            return api_serializers.RecipeListSerializer
+        else:
+            return api_serializers.RecipeDetailSerializer
 
 
 
@@ -247,7 +245,7 @@ def register_user(request):
 
 
 def add_default_recipes(new_user):
-    DEFAULT_RECIPES = [7, 12, 13]  # , 190, 191, 192, 204]
+    DEFAULT_RECIPES = [190, 191, 192, 204]
     for recipe_num in DEFAULT_RECIPES:
         def_rec = Recipe.objects.get(pk=recipe_num)
         new_rec = Recipe(
