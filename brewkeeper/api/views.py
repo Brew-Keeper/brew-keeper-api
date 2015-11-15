@@ -160,7 +160,8 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return PublicRating.objects.all().filter(recipe=recipe)
+        return PublicRating.objects.filter(recipe=recipe,
+                                           user=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
