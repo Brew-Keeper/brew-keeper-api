@@ -66,7 +66,7 @@ class BrewNote(models.Model):
 
 class PublicRating(models.Model):
     recipe = models.ForeignKey(Recipe)
-    user = models.OneToOneField(User)
+    user = models.ForeignKey(User)
     public_rating = models.PositiveSmallIntegerField()
 
     def __str__(self):
@@ -76,6 +76,7 @@ class PublicRating(models.Model):
 
     class Meta:
         default_related_name = 'public_ratings'
+        unique_together = ('recipe', 'user')
 
 
 class PublicComment(models.Model):
