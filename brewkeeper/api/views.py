@@ -28,7 +28,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                        'created_on')
     permission_classes = (IsAskerOrPublic,)
 
-
     def get_queryset(self):
         if self.kwargs['user_username'] == 'public' \
                 and self.request.method in permissions.SAFE_METHODS:
@@ -54,7 +53,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return api_serializers.RecipeListSerializer
         else:
             return api_serializers.RecipeDetailSerializer
-
 
 
 class StepViewSet(viewsets.ModelViewSet):
@@ -160,6 +158,8 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
         context['username'] = self.request.user.username
+        if self.kwargs['user_username'] != context['username']:
+            return Response(status=status.HTTP_403_FORBIDDEN)
         return context
 
     def perform_create(self, serializer):
@@ -196,6 +196,10 @@ class PublicCommentViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
         context['username'] = self.request.user.username
+        if self.kwargs['user_username'] != context['username']:
+                return Response(status=status.HTTP_403_FORBIDDEN)
+        return context
+
         return context
 
     def perform_create(self, serializer):

@@ -16,6 +16,5 @@ class IsAskerOrPublic(permissions.BasePermission):
                     return True
             except:
                 return obj.user == request.user
-
         # Write permissions are only allowed to the owner of the snippet.
         return obj.user == request.user
