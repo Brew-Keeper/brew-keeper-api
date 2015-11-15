@@ -28,12 +28,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
                        'created_on')
     permission_classes = (IsAskerOrPublic,)
 
-
     def get_queryset(self):
         if self.kwargs['user_username'] == 'public' \
                 and self.request.method in permissions.SAFE_METHODS:
-            return User.objects.get(username='public').recipes.all()
-        return self.request.user.recipes.all()
+            return User.objects.get(username='public').recipes.all() \
+                .prefetch_related('public_comments', 'public_ratings')
+        return self.request.user.recipes.all() \
+            .prefetch_related('steps', 'brewnotes')
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
@@ -42,6 +43,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             context['username'] = 'public'
         else:
             context['username'] = self.request.user.username
+            try:
+                public_rating = PublicRating.objects.get(
+                    user=self.request.user)
+                context['public_ratings'] = public_rating
+            except:
+                pass
         return context
 
     def get_serializer_class(self):
@@ -54,7 +61,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return api_serializers.RecipeListSerializer
         else:
             return api_serializers.RecipeDetailSerializer
-
 
 
 class StepViewSet(viewsets.ModelViewSet):
@@ -173,7 +179,8 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save()
         instance = self.get_object()
-        rating_calc = instance.recipe.public_ratings.aggregate(Avg('public_rating'))
+        rating_calc = instance.recipe.public_ratings.aggregate(
+            Avg('public_rating'))
         instance.recipe.average_rating = rating_calc['public_rating__avg']
         instance.recipe.save()
 
