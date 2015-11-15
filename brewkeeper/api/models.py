@@ -70,10 +70,10 @@ class PublicRating(models.Model):
     public_rating = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return "{} gave {} stars for {} at {}".format(self.user.username,
-                                                      self.public_rating,
-                                                      self.recipe.title)
-                                                      
+        return "{} gave {} stars for {}".format(self.user.username,
+                                                self.public_rating,
+                                                self.recipe.title)
+
     class Meta:
         default_related_name = 'public_ratings'
 
