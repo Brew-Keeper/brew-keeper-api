@@ -32,7 +32,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.kwargs['user_username'] == 'public' \
                 and self.request.method in permissions.SAFE_METHODS:
             return User.objects.get(username='public').recipes.all() \
-                .prefetch_related('public_comments', 'public_ratings')
+                .prefetch_related('public_comments', 'public_ratings', 'steps')
         return self.request.user.recipes.all() \
             .prefetch_related('steps', 'brewnotes')
 
