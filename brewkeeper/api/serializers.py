@@ -139,7 +139,7 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
                 user=user,
                 recipe=obj)
             serializer = PublicRatingSerializer(public_rating)
-            return serializer.data
+            return [serializer.data]
         except:
             return []
 
