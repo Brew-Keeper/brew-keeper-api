@@ -23,7 +23,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                      'roast',
                      'step__step_body',
                      'brewnote__body',
-                     'shared_by')
+                     '=shared_by')
     ordering_fields = ('rating',
                        'brew_count',
                        'created_on')
