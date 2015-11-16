@@ -158,8 +158,6 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
         context['username'] = self.request.user.username
-        if self.kwargs['user_username'] != context['username']:
-            return Response(status=status.HTTP_403_FORBIDDEN)
         return context
 
     def perform_create(self, serializer):
@@ -196,10 +194,6 @@ class PublicCommentViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context().copy()
         context['recipe_id'] = self.kwargs['recipe_pk']
         context['username'] = self.request.user.username
-        if self.kwargs['user_username'] != context['username']:
-                return Response(status=status.HTTP_403_FORBIDDEN)
-        return context
-
         return context
 
     def perform_create(self, serializer):
