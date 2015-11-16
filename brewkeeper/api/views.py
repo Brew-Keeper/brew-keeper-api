@@ -31,8 +31,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.kwargs['user_username'] == 'public' \
                 and self.request.method in permissions.SAFE_METHODS:
-            return User.objects.get(username='public').recipes.all()
-        return self.request.user.recipes.all()
+            return User.objects.get(username='public').recipes.all() \
+                .prefetch_related('public_comments', 'public_ratings', 'steps')
+        return self.request.user.recipes.all() \
+            .prefetch_related('steps', 'brewnotes')
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
@@ -152,7 +154,8 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return PublicRating.objects.all().filter(recipe=recipe)
+        return PublicRating.objects.filter(recipe=recipe,
+                                           user=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
@@ -171,7 +174,8 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save()
         instance = self.get_object()
-        rating_calc = instance.recipe.public_ratings.aggregate(Avg('public_rating'))
+        rating_calc = instance.recipe.public_ratings.aggregate(
+            Avg('public_rating'))
         instance.recipe.average_rating = rating_calc['public_rating__avg']
         instance.recipe.save()
 
@@ -326,7 +330,7 @@ def send_reset_string(request):
     reset_string = "".join(
         [random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)])
     recipient = user[0].email
-    html = 'http://www.brew-keeper.firebase.com/#/reset-pw'
+    html = 'https://brew-keeper.firebaseapp.com/#/reset-pw'
     MAILGUN_KEY = os.environ['MAILGUN_KEY']
     sandbox = 'sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org'
     request_url = 'https://api.mailgun.net/v3/{}/messages'.format(sandbox)
@@ -355,14 +359,11 @@ def reset_password(request):
     receive a new token.'''
     new_password = request.data['new_password']
     user = get_object_or_404(User, username=request.data['username'])
-    if user.email == request.data['email']:
-        try:
-            user.userinfo.reset_string == request.data['reset_string']
-        except:
-            return HttpResponse('Reset string does not match.',
-                                status=status.HTTP_400_BAD_REQUEST)
-    else:
+    if user.email != request.data['email']:
         return HttpResponse('Email does not match.',
+                            status=status.HTTP_400_BAD_REQUEST)
+    if user.userinfo.reset_string != request.data['reset_string']:
+        return HttpResponse('Reset string does not match.',
                             status=status.HTTP_400_BAD_REQUEST)
     user.set_password(new_password)
     user.save()
