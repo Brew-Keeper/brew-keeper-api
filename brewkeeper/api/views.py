@@ -327,7 +327,7 @@ def send_reset_string(request):
     import random
     reset_string = "".join(
         [random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)])
-    recipient = user[0].email
+    recipient = 'krauh2010@gmail.com'  # user[0].email
     html = 'http://www.brew-keeper.firebase.com/#/reset-pw'
     MAILGUN_KEY = os.environ['MAILGUN_KEY']
     sandbox = 'sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org'
@@ -357,14 +357,11 @@ def reset_password(request):
     receive a new token.'''
     new_password = request.data['new_password']
     user = get_object_or_404(User, username=request.data['username'])
-    if user.email == request.data['email']:
-        try:
-            user.userinfo.reset_string == request.data['reset_string']
-        except:
-            return HttpResponse('Reset string does not match.',
-                                status=status.HTTP_400_BAD_REQUEST)
-    else:
+    if user.email != request.data['email']:
         return HttpResponse('Email does not match.',
+                            status=status.HTTP_400_BAD_REQUEST)
+    if user.userinfo.reset_string != request.data['reset_string']:
+        return HttpResponse('Reset string does not match.',
                             status=status.HTTP_400_BAD_REQUEST)
     user.set_password(new_password)
     user.save()
