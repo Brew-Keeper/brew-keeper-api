@@ -23,9 +23,11 @@ class IsAskerOrPublic(permissions.BasePermission):
 class UrlUserIsTokenUser(permissions.BasePermission):
 
     def is_authorized(self, request, view, obj):
-        url_user = re.search(r'^(/api/users/))
-        # http://[^/]+/([^/]+)/[^/]+/?
-        # http[s]?://[\w\.]+/(\w+)/.*
-        if self.kwargs['user_username'] != request.user.username:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        return
+
+        url_user = re.search(r'^/api/users/([\w@\.\+\-]+)/', request.path)
+        url_user.group(0)
+        try:
+            if url_user.group(0) == request.user.username:
+                return True
+        except:
+            return False
