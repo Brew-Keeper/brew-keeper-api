@@ -367,7 +367,7 @@ def reset_password(request):
         return HttpResponse('Email does not match registered email.',
                             status=status.HTTP_400_BAD_REQUEST)
     try:
-        reset_string = request.data['reset_string']
+        reset_string = user.userinfo.reset_string
     except:
         return HttpResponse('You have not requested a password reset string.',
                             status=status.HTTP_400_BAD_REQUEST)
