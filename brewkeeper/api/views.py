@@ -43,7 +43,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             context['username'] = 'public'
         else:
             context['username'] = self.request.user.username
-            context['recipe_id'] = self.kwargs['recipe_pk']
         return context
 
     def get_serializer_class(self):

@@ -124,8 +124,7 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
                                                   read_only=True,
                                                   source='user.username')
     steps = StepSerializer(many=True, read_only=True)
-    # public_ratings = PublicRatingSerializer(many=True, read_only=True)
-    public_ratings = serializers.SerializerMethodField('get_public_ratings')
+    public_ratings = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -136,10 +135,9 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
     def get_public_ratings(self, obj):
         try:
             user = self.context['request'].user
-            recipe = Recipe.objects.get(pk=self.context['recipe_id'])
             public_rating = PublicRating.objects.get(
                 user=user,
-                recipe=recipe)
+                recipe=obj)
             serializer = PublicRatingSerializer(public_rating)
             return serializer.data
         except:
