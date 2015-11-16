@@ -358,7 +358,11 @@ def reset_password(request):
     '''User can use emailed reset_string to create a new password, login and
     receive a new token.'''
     new_password = request.data['new_password']
-    user = get_object_or_404(User, username=request.data['username'])
+    try:
+        user = User.objects.get(username=request.data['username'])
+    except:
+        return HttpResponse('That username is not in the database.',
+                            status=status.HTTP_400_BAD_REQUEST)
     if user.email != request.data['email']:
         return HttpResponse('Email does not match.',
                             status=status.HTTP_400_BAD_REQUEST)
