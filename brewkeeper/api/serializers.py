@@ -131,7 +131,8 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
                   'username', 'steps', 'total_duration', 'water_units',
-                  'average_rating', 'public_ratings', 'combined_rating')
+                  'average_rating', 'public_ratings', 'combined_rating',
+                  'shared_by')
 
     def get_public_ratings(self, obj):
         try:
