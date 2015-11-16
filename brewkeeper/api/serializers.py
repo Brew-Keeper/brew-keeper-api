@@ -125,12 +125,13 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
                                                   source='user.username')
     steps = StepSerializer(many=True, read_only=True)
     public_ratings = serializers.SerializerMethodField()
+    combined_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'rating', 'bean_name', 'roast', 'brew_count',
                   'username', 'steps', 'total_duration', 'water_units',
-                  'average_rating', 'public_ratings')
+                  'average_rating', 'public_ratings', 'combined_rating')
 
     def get_public_ratings(self, obj):
         try:
@@ -142,6 +143,17 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
             return [serializer.data]
         except:
             return []
+
+    def get_combined_rating(self, obj):
+        try:
+            user = self.context['request'].user
+            user_rating = PublicRating.objects.get(
+                user=user,
+                recipe=obj
+            )
+            return user_rating.public_rating
+        except:
+            return obj.average_rating
 
 
 class PublicRecipeDetailSerializer(PublicRecipeListSerializer):
