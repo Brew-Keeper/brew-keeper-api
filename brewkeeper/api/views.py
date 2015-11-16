@@ -364,14 +364,11 @@ def reset_password(request):
     receive a new token.'''
     new_password = request.data['new_password']
     user = get_object_or_404(User, username=request.data['username'])
-    if user.email == request.data['email']:
-        try:
-            user.userinfo.reset_string == request.data['reset_string']
-        except:
-            return HttpResponse('Reset string does not match.',
-                                status=status.HTTP_400_BAD_REQUEST)
-    else:
+    if user.email != request.data['email']:
         return HttpResponse('Email does not match.',
+                            status=status.HTTP_400_BAD_REQUEST)
+    if user.userinfo.reset_string != request.data['reset_string']:
+        return HttpResponse('Reset string does not match.',
                             status=status.HTTP_400_BAD_REQUEST)
     user.set_password(new_password)
     user.save()
