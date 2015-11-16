@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Recipe, Step, BrewNote, PublicRating, PublicComment, UserInfo
-from .permissions import IsAskerOrPublic
+from .permissions import IsAskerOrPublic, UrlUserIsTokenUser
 from . import serializers as api_serializers
 import requests
 import os
@@ -26,7 +26,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ordering_fields = ('rating',
                        'brew_count',
                        'created_on')
-    permission_classes = (IsAskerOrPublic,)
+    permission_classes = (IsAskerOrPublic, UrlUserIsTokenUser)
 
     def get_queryset(self):
         if self.kwargs['user_username'] == 'public' \
@@ -59,10 +59,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class StepViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.StepSerializer
-    # permission_classes = (IsAskerOrPublic,)
+    permission_classes = (UrlUserIsTokenUser,)
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        print(self.request.path)
         return Step.objects.all().filter(recipe=recipe)
 
     def get_serializer_context(self):
@@ -138,6 +139,7 @@ class StepViewSet(viewsets.ModelViewSet):
 
 class BrewNoteViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.BrewNoteSerializer
+    permission_classes = (UrlUserIsTokenUser,)
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
@@ -151,6 +153,7 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 
 class PublicRatingViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.PublicRatingSerializer
+    permission_classes = (UrlUserIsTokenUser,)
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
@@ -189,6 +192,7 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
 
 class PublicCommentViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.PublicCommentSerializer
+    permission_classes = (UrlUserIsTokenUser,)
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])

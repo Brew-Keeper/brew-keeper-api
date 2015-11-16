@@ -22,12 +22,10 @@ class IsAskerOrPublic(permissions.BasePermission):
 
 class UrlUserIsTokenUser(permissions.BasePermission):
 
-    def is_authorized(self, request, view, obj):
+    def has_permission(self, request, view):
 
         url_user = re.search(r'^/api/users/([\w@\.\+\-]+)/', request.path)
-        url_user.group(0)
-        try:
-            if url_user.group(0) == request.user.username:
-                return True
-        except:
+        if url_user.group(1) == request.user.username:
+            return True
+        else:
             return False
