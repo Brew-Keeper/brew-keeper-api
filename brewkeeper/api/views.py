@@ -43,12 +43,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             context['username'] = 'public'
         else:
             context['username'] = self.request.user.username
-            try:
-                public_rating = PublicRating.objects.get(
-                    user=self.request.user)
-                context['public_ratings'] = public_rating
-            except:
-                pass
+            # try:
+            #     public_rating = PublicRating.objects.filter(
+            #         user=self.request.user, recipe=self.get_object)
+            #     context['public_ratings'] = public_rating
+            # except:
+            #     pass
         return context
 
     def get_serializer_class(self):
