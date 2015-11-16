@@ -335,7 +335,7 @@ def send_reset_string(request):
     reset_string = "".join(
         [random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)])
     recipient = user[0].email
-    html = 'http://www.brew-keeper.firebase.com/#/reset-pw'
+    html = 'https://brew-keeper.firebaseapp.com/#/reset-pw'
     MAILGUN_KEY = os.environ['MAILGUN_KEY']
     sandbox = 'sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org'
     request_url = 'https://api.mailgun.net/v3/{}/messages'.format(sandbox)
