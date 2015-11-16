@@ -43,12 +43,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             context['username'] = 'public'
         else:
             context['username'] = self.request.user.username
-            try:
-                public_rating = PublicRating.objects.get(
-                    user=self.request.user)
-                context['public_ratings'] = public_rating
-            except:
-                pass
         return context
 
     def get_serializer_class(self):
@@ -160,7 +154,8 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return PublicRating.objects.all().filter(recipe=recipe)
+        return PublicRating.objects.filter(recipe=recipe,
+                                           user=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
