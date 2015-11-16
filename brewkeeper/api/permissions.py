@@ -18,14 +18,3 @@ class IsAskerOrPublic(permissions.BasePermission):
                 return obj.user == request.user
         # Write permissions are only allowed to the owner of the snippet.
         return obj.user == request.user
-
-
-class UrlUserIsTokenUser(permissions.BasePermission):
-
-    def is_authorized(self, request, view, obj):
-        url_user = re.search(r'^(/api/users/))
-        # http://[^/]+/([^/]+)/[^/]+/?
-        # http[s]?://[\w\.]+/(\w+)/.*
-        if self.kwargs['user_username'] != request.user.username:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        return
