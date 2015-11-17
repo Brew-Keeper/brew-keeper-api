@@ -22,3 +22,4 @@ Brew Keeper provides a way to **create**, **brew**, **refine**, **share**, and *
 * Please see [Development Notes](https://github.com/Brew-Keeper/brew-keeper-api/wiki/Development-Notes)
 
 ##### The Brew Keeper team
+Four students in Cohort 5 at The Iron Yard in Durham, NC, created Brew Keeper as their final project to showcase their skills in Python, Django, jQuery, HTML, CSS, .
