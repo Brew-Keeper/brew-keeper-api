@@ -23,6 +23,7 @@ class Recipe(models.Model):
     brew_count = models.PositiveIntegerField(default=0)
     total_duration = models.PositiveSmallIntegerField(default=0)
     average_rating = models.FloatField(default=0)
+    shared_by = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return "{} rated as: {}, bean: {} roast: {}".format(
