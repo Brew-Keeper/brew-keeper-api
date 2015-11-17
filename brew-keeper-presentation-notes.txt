@@ -1,0 +1,25 @@
+## Brew Keeper Presentation Notes
+
+#### Introduction:
+* The Story:
+  * Let's say you wake up on Christmas morning to find this strange looking item stuffed into your stocking. This is the AeroPress. It is a coffee making device which seems to have a cult following. There is even a World Championship for AeroPress coffee brewers.
+  * You enjoy a great cup of coffee, so you decide to learn how to use this thing.
+  * After a quick search online, you discover Brew Keeper.  The perfect web app for any AeroPress coffee brewer.
+
+
+* Project features
+  * PUBLIC RECIPES - The first thing you'll want is a few starter recipes.  Brew Keeper provides a handful of tried and true recipes that anyone can use.  You can search for the highest rated recipes to see which is most popular.  You can brew it from here, or, if you choose to become a registered user of Brew Keeper, you can even clone these recipes to your own recipe list and tweak them to your liking.  Once you have it just the way you like it, you can choose to share it with other users, if you so desire.
+
+  * RECIPE LIST - Brew Keeper is a great place to experiment with ingredients and brew times. Once you've logged in, you can view a list of all your recipes.  You can search them and sort them.  Choose the one you want to use, or create a new one.
+
+  * RECIPE DETAIL - On the recipe detail page, you see all the specifics about the recipe, including ingredients and instructions for each step.  You can edit these as often as you like.  At the bottom of the page you see a general comment about the recipe, as well as brew notes, which are your notes for the next time you brew it.
+
+  * BREW IT - After some experimentation, you've homed in on your go-to coffee recipe, and you just want to brew it. Once you have your beans and water ready, just hit the BREW IT button!  With the AeroPress, each step in a recipe is time sensitive, so we have created a timer to ensure that each cup is exactly the way you designed it to be.
+
+  * BREW NOTES and STEPS - After you've tried your recipe, you can add notes for next time.  Maybe you'd use water that is a little hotter next time.  Maybe you want to let the grounds steep longer.  Just record that in the recipe.  You can even change the order of the steps, if you want.
+
+  *  RATING A RECIPE - In order to remember which recipes are your very best, you can rate your recipe.  You can also rate the public recipes.  IF you have rated a public recipe, your rating will appear in gold stars, while the average rating of the recipe by all users, will appear in green if you have not rated it yourself.
+
+
+#### Conclusion:
+*
