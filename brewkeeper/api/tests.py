@@ -8,19 +8,12 @@ from .models import Recipe, BrewNote
 from django.contrib.auth.models import User
 
 
-# Create your tests here.
-
 class RecipeTests(APITestCase):
 
     def setUp(self):
         user = User.objects.create(username='don.pablo', password='password')
         recipe = Recipe.objects.create(user=user, title="The Original", bean_name="Arabica")
         BrewNote.objects.create(recipe=recipe, body='Test Brewnote')
-
-        # Include an appropriate `Authorization:` header on all requests.
-        # token = Token.objects.get(user__username='don.pablo')
-        # client = APIClient()
-        # client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
     def test_get_recipe(self):
         """

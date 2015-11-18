@@ -47,7 +47,6 @@ class Step(models.Model):
         return self.step_title
 
     class Meta:
-        # unique_together = ('recipe_pk', 'step_number')
         ordering = ['step_number']
         default_related_name = 'steps'
 
