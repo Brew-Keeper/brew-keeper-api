@@ -1,7 +1,6 @@
 dj-database-url==0.3.0
 Django==1.8.5
 django-cors-headers==1.1.0
-django-rest-swagger==0.3.4
 djangorestframework==3.3.0
 drf-nested-routers==0.10.0
 gunicorn==19.3.0
