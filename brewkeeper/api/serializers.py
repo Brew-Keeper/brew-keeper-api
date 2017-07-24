@@ -160,7 +160,6 @@ class PublicRecipeDetailSerializer(PublicRecipeListSerializer):
     brewnotes = BrewNoteSerializer(many=True, read_only=True)
     public_comments = PublicCommentSerializer(many=True, read_only=True)
 
-
     class Meta:
         model = Recipe
         fields = tuple(list(PublicRecipeListSerializer.Meta.fields) +

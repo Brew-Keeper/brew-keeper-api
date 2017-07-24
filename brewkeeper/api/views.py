@@ -235,12 +235,13 @@ def register_user(request):
     if len(user) != 0:
         return HttpResponse('That username is already in the database.',
                             status=status.HTTP_400_BAD_REQUEST)
-    if request.data.get('email', '') == '':
+    email = request.data.get('email', '')
+    if email == '':
         return HttpResponse('Email is a required field.',
                             status=status.HTTP_400_BAD_REQUEST)
     new_user = User(username=username)
     new_user.set_password(password)
-    new_user.email = request.data.get('email', '')
+    new_user.email = email
     new_user.save()
     add_default_recipes(new_user)
     token, created = Token.objects.get_or_create(user=new_user)
@@ -321,8 +322,7 @@ def change_password(request):
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def send_reset_string(request):
-    '''Email user with a random_string which will allow them to reset a
-    forgotten password.'''
+    '''Email user a random_string with which to reset a forgotten password.'''
     username = request.data['username']
     user = User.objects.filter(username=username)
     if len(user) == 0:
