@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework_nested import routers
 from api import views as api_views
 
@@ -79,7 +80,7 @@ urlpatterns = [
 
     url(r'^api/register/$', api_views.register_user, name='register'),
 
-    url(r'^api/login/$', 'rest_framework.authtoken.views.obtain_auth_token'),
+    url(r'^api/login/$', obtain_auth_token),
 
     url(r'^api/logout/$', api_views.logout_user, name='logout'),
 
