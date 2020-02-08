@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.4.3"
+  - "3.6"
 env:
 - PYTHONPATH=api
 # command to install dependencies
