@@ -5,11 +5,7 @@ env:
 - PYTHONPATH=api
 # command to install dependencies
 install: "pip install -r requirements.txt"
+
 # command to run tests
-
-before_script:
-  python brewkeeper/manage.py runserver &
-
 script:
-  brewkeeper/manage.py test
-# coverage run functional_tests.py
+  python brewkeeper/manage.py test brewkeeper/
