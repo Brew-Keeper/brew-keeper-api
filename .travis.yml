@@ -1,11 +1,20 @@
 language: python
+
 python:
   - "3.6"
+
+services: postgresql
+
 env:
-- PYTHONPATH=api
+  - DJANGO_SETTINGS_MODULE=brewkeeper.build_settings
+
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install:
+  - pip install -r requirements.txt
 
 # command to run tests
 script:
-  python brewkeeper/manage.py test brewkeeper/
+  - python brewkeeper/manage.py test brewkeeper/
