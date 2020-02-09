@@ -1,18 +1,19 @@
-# from django.test import TestCase
-# from django.core.urlresolvers import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
-from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient, APITestCase
 from .models import Recipe, BrewNote
 from django.contrib.auth.models import User
+
+recipe_endpoint = '/api/users/don.pablo/recipes/'
 
 
 class RecipeTests(APITestCase):
 
     def setUp(self):
         user = User.objects.create(username='don.pablo', password='password')
-        recipe = Recipe.objects.create(user=user, title="The Original", bean_name="Arabica")
+        recipe = Recipe.objects.create(
+            user=user,
+            title="The Original",
+            bean_name="Arabica")
         BrewNote.objects.create(recipe=recipe, body='Test Brewnote')
 
     def test_get_recipe(self):
@@ -20,105 +21,120 @@ class RecipeTests(APITestCase):
         Ensure we can read a recipe object.
         """
         client = authenticate_user()
-        orig_recipe = Recipe.objects.filter(title='The Original')
-        orig_url = '/api/users/don.pablo/recipes/' + str(orig_recipe[0].pk) + '/'
-        response = client.get(orig_url)
+        recipe = Recipe.objects.first()
+        url = "{}{}/".format(recipe_endpoint, recipe.pk)
+
+        response = client.get(url)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['title'], 'The Original')
+        self.assertEqual(response.data['id'], recipe.pk)
 
     def test_create_recipe(self):
         """
         Ensure we can create a new recipe object.
         """
         client = authenticate_user()
-        url = '/api/users/don.pablo/recipes/'
-        response = client.post(url, {"title": "The Impostor"})
+
+        response = client.post(recipe_endpoint, {"title": "The Impostor"})
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Recipe.objects.count(), 2)
-        posted_recipe = Recipe.objects.filter(title='The Impostor')
-        self.assertEqual(posted_recipe[0].title, 'The Impostor')
+        self.assertEqual(
+            Recipe.objects.filter(title='The Impostor').count(), 1)
 
     def test_delete_recipe(self):
         """
         Ensure we can delete a recipe object.
         """
         client = authenticate_user()
-        orig_recipe = Recipe.objects.filter(title='The Original')
-        orig_url = '/api/users/don.pablo/recipes/' + str(orig_recipe[0].pk) + '/'
-        response = client.delete(orig_url)
+        recipe = Recipe.objects.filter(title='The Original').first()
+        url = "{}{}/".format(recipe_endpoint, recipe.pk)
+
+        response = client.delete(url)
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Recipe.objects.count(), 0)
 
     def test_patch_recipe(self):
         """
         Ensure we can change a field in a recipe object.
         """
         client = authenticate_user()
-        orig_recipe = Recipe.objects.filter(title='The Original')
-        orig_url = '/api/users/don.pablo/recipes/' + str(orig_recipe[0].pk) + '/'
-        response = client.patch(orig_url,
-                                {'bean_name': 'Robusto'},
-                                format='json')
+        recipe = Recipe.objects.filter(title='The Original').first()
+        new_bean_name = 'Robusto'
+        self.assertNotEqual(recipe.bean_name, new_bean_name)
+        url = "{}{}/".format(recipe_endpoint, recipe.pk)
+
+        response = client.patch(
+            url,
+            {'bean_name': new_bean_name},
+            format='json')
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(orig_recipe[0].bean_name, 'Robusto')
+        recipe.refresh_from_db()
+        self.assertEqual(recipe.bean_name, new_bean_name)
 
     def test_create_brewnote(self):
         """
         Ensure we can create a new brewnote object.
         """
         client = authenticate_user()
-        parent_recipe = Recipe.objects.filter(title='The Original')[0]
-        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
-                   '/brewnotes/'
-        response = client.post(brew_url, {'body': 'A test brewnote'})
+        recipe = Recipe.objects.first()
+        url = "{}{}/brewnotes/".format(recipe_endpoint, recipe.pk)
+        brewnote_body = 'A test brewnote'
+        self.assertEqual(
+            recipe.brewnotes.filter(body=brewnote_body).first(), None)
+
+        response = client.post(url, {'body': brewnote_body})
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
-        self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
+        self.assertNotEqual(
+            recipe.brewnotes.filter(body=brewnote_body).first(), None)
 
     def test_get_brewnote(self):
         """
         Ensure we can read a brewnote object.
         """
         client = authenticate_user()
-        parent_recipe = Recipe.objects.filter(title='The Original')[0]
-        brewnotes = parent_recipe.brewnotes.all()
-        brewnote_id = str(brewnotes[0].pk)
-        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
-                   '/brewnotes/' + brewnote_id + '/'
-        response = client.get(brew_url)
+        brewnote = BrewNote.objects.first()
+        url = "{}{}/brewnotes/{}/".format(
+            recipe_endpoint, brewnote.recipe_id, brewnote.pk)
+
+        response = client.get(url)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['body'], 'Test Brewnote')
+        self.assertEqual(response.data['id'], brewnote.pk)
 
     def test_patch_brewnote(self):
         """
         Ensure we can change a field in a brewnote object.
         """
         client = authenticate_user()
-        parent_recipe = Recipe.objects.filter(title='The Original')
-        parent_recipe = parent_recipe[0]
-        brewnotes = parent_recipe.brewnotes.all()
-        brewnote_id = str(brewnotes[0].pk)
-        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
-                   '/brewnotes/' + brewnote_id + '/'
-        response = client.patch(brew_url,
-                                {'body': 'A test brewnote'},
-                                format='json')
+        brewnote = BrewNote.objects.first()
+        new_body = 'A new brewnote body'
+        self.assertNotEqual(brewnote.body, new_body)
+        url = "{}{}/brewnotes/{}/".format(
+            recipe_endpoint, brewnote.recipe_id, brewnote.pk)
+
+        response = client.patch(url, {'body': new_body}, format='json')
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Recipe.objects.count(), 1)
-        posted_brewnote = parent_recipe.brewnotes.filter(body='A test brewnote')
-        self.assertEqual(posted_brewnote[0].body, 'A test brewnote')
+        brewnote.refresh_from_db()
+        self.assertEqual(brewnote.body, new_body)
 
     def test_delete_brewnote(self):
         """
         Ensure we can delete a brewnote object.
         """
         client = authenticate_user()
-        parent_recipe = Recipe.objects.filter(title='The Original')[0]
-        brewnotes = parent_recipe.brewnotes.all()
-        brewnote_id = str(brewnotes[0].pk)
-        brew_url = '/api/users/don.pablo/recipes/' + str(parent_recipe.pk) + \
-                   '/brewnotes/' + brewnote_id + '/'
-        response = client.delete(brew_url)
+        brewnote = BrewNote.objects.first()
+        url = "{}{}/brewnotes/{}/".format(
+            recipe_endpoint, brewnote.recipe_id, brewnote.pk)
+
+        response = client.delete(url)
+
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(BrewNote.objects.count(), 0)
 
 
 def authenticate_user(username='don.pablo'):
