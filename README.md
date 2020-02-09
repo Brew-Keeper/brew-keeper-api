@@ -1,5 +1,4 @@
-## [Brew Keeper](http://www.brew-keeper.com)
-
+# [Brew Keeper](http://www.brew-keeper.com) [![Build Status](https://travis-ci.org/Brew-Keeper/brew-keeper-api.svg?branch=master)](https://travis-ci.org/Brew-Keeper/brew-keeper-api)
 
 ##### Good Coffee
 Making coffee in a typical coffee maker can be as simple as scooping pre-ground coffee into a filter, pouring water into the reservoir, and turning it on.
