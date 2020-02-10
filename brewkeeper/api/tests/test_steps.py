@@ -42,6 +42,40 @@ class StepTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(recipe.steps.count(), 2)
 
+    def test_create_reorders_step(self):
+        """Ensure new Step with duplicate step_number reorders the others."""
+        client = authenticate_user()
+        recipe = Recipe.objects.first()
+        self.assertEqual(recipe.steps.count(), 1)
+        first_step = recipe.steps.first()
+        middle_step = Step.objects.create(
+            recipe=recipe,
+            duration=10,
+            step_number=2,
+            step_title='Step 2'
+        )
+        end_step = Step.objects.create(
+            recipe=recipe,
+            duration=10,
+            step_number=3,
+            step_title='Step 3'
+        )
+        url = steps_endpoint.format(recipe.pk)
+
+        response = client.post(url, {
+            'duration': 12,
+            'step_number': 2,
+            'step_title': 'New Step 2',
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        first_step.refresh_from_db()
+        middle_step.refresh_from_db()
+        end_step.refresh_from_db()
+        self.assertEqual(first_step.step_number, 1)
+        self.assertEqual(middle_step.step_number, 3)
+        self.assertEqual(end_step.step_number, 4)
+
     def test_get_step(self):
         """Ensure we can read a Step object."""
         client = authenticate_user()
@@ -105,8 +139,8 @@ class StepTests(APITestCase):
         first_step.refresh_from_db()
         middle_step.refresh_from_db()
         end_step.refresh_from_db()
-        self.assertEqual(middle_step.step_number, 1)
         self.assertEqual(first_step.step_number, 2)
+        self.assertEqual(middle_step.step_number, 1)
         self.assertEqual(end_step.step_number, 3)
 
     def test_delete_step(self):
