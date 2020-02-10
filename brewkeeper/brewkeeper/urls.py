@@ -23,43 +23,35 @@ from api import views as api_views
 router = routers.SimpleRouter()
 router.register(r'users', api_views.UserViewSet, base_name='users')
 
-recipes_router = routers.NestedSimpleRouter(router,
-                                            r'users',
-                                            lookup='user')
+recipes_router = routers.NestedSimpleRouter(
+    router, r'users', lookup='user')
 
-recipes_router.register(r'recipes',
-                        api_views.RecipeViewSet,
-                        base_name='recipe_list')
+recipes_router.register(
+    r'recipes', api_views.RecipeViewSet, base_name='recipe_list')
 
-recipes_steps_router = routers.NestedSimpleRouter(recipes_router,
-                                                  r'recipes',
-                                                  lookup='recipe')
-recipes_steps_router.register(r'steps',
-                              api_views.StepViewSet,
-                              base_name='step_list')
+recipes_steps_router = routers.NestedSimpleRouter(
+    recipes_router, r'recipes', lookup='recipe')
 
-recipes_brewnotes_router = routers.NestedSimpleRouter(recipes_router,
-                                                      r'recipes',
-                                                      lookup='recipe')
-recipes_brewnotes_router.register(r'brewnotes',
-                                  api_views.BrewNoteViewSet,
-                                  base_name='brewnote_list')
+recipes_steps_router.register(
+    r'steps', api_views.StepViewSet, base_name='step_list')
 
-recipes_ratings_router = routers.NestedSimpleRouter(recipes_router,
-                                                    r'recipes',
-                                                    lookup='recipe')
+recipes_brewnotes_router = routers.NestedSimpleRouter(
+    recipes_router, r'recipes', lookup='recipe')
 
-recipes_ratings_router.register(r'ratings',
-                                api_views.PublicRatingViewSet,
-                                base_name='public_ratings')
+recipes_brewnotes_router.register(
+    r'brewnotes', api_views.BrewNoteViewSet, base_name='brewnote_list')
 
-recipes_comments_router = routers.NestedSimpleRouter(recipes_router,
-                                                     r'recipes',
-                                                     lookup='recipe')
+recipes_ratings_router = routers.NestedSimpleRouter(
+    recipes_router, r'recipes', lookup='recipe')
 
-recipes_comments_router.register(r'comments',
-                                 api_views.PublicCommentViewSet,
-                                 base_name='public_comments')
+recipes_ratings_router.register(
+    r'ratings', api_views.PublicRatingViewSet, base_name='public_ratings')
+
+recipes_comments_router = routers.NestedSimpleRouter(
+    recipes_router, r'recipes', lookup='recipe')
+
+recipes_comments_router.register(
+    r'comments', api_views.PublicCommentViewSet, base_name='public_comments')
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
