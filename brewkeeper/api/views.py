@@ -72,7 +72,7 @@ class StepViewSet(viewsets.ModelViewSet):
         return context
 
     def perform_create(self, serializer):
-        '''Update total duration and rearrange steps if necessary'''
+        """Update total duration and rearrange steps if necessary"""
 
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
         existing_steps = recipe.steps.all().order_by('step_number')
@@ -91,7 +91,7 @@ class StepViewSet(viewsets.ModelViewSet):
         recipe.save()
 
     def perform_update(self, serializer):
-        '''Rearrange steps if necessary'''
+        """Rearrange steps if necessary"""
         instance = self.get_object()
         new_step_num = int(serializer.initial_data['step_number'])
         if instance.step_number != new_step_num:
@@ -302,7 +302,7 @@ def login_user(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated, ))
 def change_password(request):
-    '''Allow Logged in user to change their password.'''
+    """Allow Logged in user to change their password."""
     username = request.data['username']
     old_password = request.data['old_password']
     new_password = request.data['new_password']
@@ -322,7 +322,7 @@ def change_password(request):
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def send_reset_string(request):
-    '''Email user a random_string with which to reset a forgotten password.'''
+    """Email user a random_string with which to reset a forgotten password."""
     username = request.data['username']
     user = User.objects.filter(username=username)
     if len(user) == 0:
@@ -356,8 +356,7 @@ def send_reset_string(request):
 @api_view(['POST'])
 @permission_classes((AllowAny, ))
 def reset_password(request):
-    '''User can use emailed reset_string to create a new password, login and
-    receive a new token.'''
+    """Email reset_string to create a new password"""
     new_password = request.data['new_password']
     try:
         user = User.objects.get(username=request.data['username'])
