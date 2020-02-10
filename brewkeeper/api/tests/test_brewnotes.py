@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from .helpers import authenticate_user
-from api.models import Recipe, BrewNote
+from api.models import BrewNote, Recipe
 
 brewnotes_endpoint = '/api/users/don.pablo/recipes/{}/brewnotes/'
 
@@ -13,11 +13,12 @@ class BrewNoteTests(APITestCase):
         user = User.objects.create(username='don.pablo', password='password')
         recipe = Recipe.objects.create(
             user=user,
-            title="The Original",
-            bean_name="Arabica")
+            title='The Original',
+            bean_name='Arabica')
         brewnote = BrewNote.objects.create(recipe=recipe, body='Test Brewnote')
         self.brewnote_url = '{}{}/'.format(
-            brewnotes_endpoint.format(brewnote.recipe_id), brewnote.pk)
+            brewnotes_endpoint.format(brewnote.recipe_id),
+            brewnote.pk)
 
     def test_create_brewnote(self):
         """
@@ -33,8 +34,7 @@ class BrewNoteTests(APITestCase):
         response = client.post(url, {'body': brewnote_body})
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            BrewNote.objects.filter(body=brewnote_body).count(), 1)
+        self.assertEqual(BrewNote.objects.filter(body=brewnote_body).count(), 1)
 
     def test_get_brewnote(self):
         """
@@ -58,7 +58,9 @@ class BrewNoteTests(APITestCase):
         self.assertNotEqual(brewnote.body, new_body)
 
         response = client.patch(
-            self.brewnote_url, {'body': new_body}, format='json')
+            self.brewnote_url,
+            {'body': new_body},
+            format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         brewnote.refresh_from_db()

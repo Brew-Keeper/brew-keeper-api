@@ -13,20 +13,20 @@ class RecipeTests(APITestCase):
         user = User.objects.create(username='don.pablo', password='password')
         recipe = Recipe.objects.create(
             user=user,
-            title="The Original",
-            bean_name="Arabica")
-        self.recipe_url = "{}{}/".format(recipes_endpoint, recipe.pk)
+            title='The Original',
+            bean_name='Arabica')
+        self.recipe_url = '{}{}/'.format(recipes_endpoint, recipe.pk)
 
     def test_create_recipe(self):
         """
         Ensure we can create a new recipe object.
         """
         client = authenticate_user()
-        title = "The Impostor"
+        title = 'The Impostor'
         with self.assertRaises(Recipe.DoesNotExist):
             Recipe.objects.get(title=title)
 
-        response = client.post(recipes_endpoint, {"title": title})
+        response = client.post(recipes_endpoint, {'title': title})
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Recipe.objects.filter(title=title).count(), 1)
