@@ -21,9 +21,7 @@ class BrewNoteTests(APITestCase):
             brewnote.pk)
 
     def test_create_brewnote(self):
-        """
-        Ensure we can create a new BrewNote object.
-        """
+        """Ensure we can create a new BrewNote object."""
         client = authenticate_user()
         recipe = Recipe.objects.first()
         url = brewnotes_endpoint.format(recipe.pk)
@@ -37,9 +35,7 @@ class BrewNoteTests(APITestCase):
         self.assertEqual(BrewNote.objects.filter(body=brewnote_body).count(), 1)
 
     def test_get_brewnote(self):
-        """
-        Ensure we can read a BrewNote object.
-        """
+        """Ensure we can read a BrewNote object."""
         client = authenticate_user()
         brewnote = BrewNote.objects.first()
 
@@ -49,9 +45,7 @@ class BrewNoteTests(APITestCase):
         self.assertEqual(response.data['id'], brewnote.pk)
 
     def test_patch_brewnote(self):
-        """
-        Ensure we can change a field in a BrewNote object.
-        """
+        """Ensure we can change a field in a BrewNote object."""
         client = authenticate_user()
         brewnote = BrewNote.objects.first()
         new_body = 'A new brewnote body'
@@ -67,9 +61,7 @@ class BrewNoteTests(APITestCase):
         self.assertEqual(brewnote.body, new_body)
 
     def test_delete_brewnote(self):
-        """
-        Ensure we can delete a BrewNote object.
-        """
+        """Ensure we can delete a BrewNote object."""
         client = authenticate_user()
         brewnote = BrewNote.objects.first()
 

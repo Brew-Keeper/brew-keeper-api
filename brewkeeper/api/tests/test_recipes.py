@@ -18,9 +18,7 @@ class RecipeTests(APITestCase):
         self.recipe_url = '{}{}/'.format(recipes_endpoint, recipe.pk)
 
     def test_create_recipe(self):
-        """
-        Ensure we can create a new recipe object.
-        """
+        """Ensure we can create a new Recipe object."""
         client = authenticate_user()
         title = 'The Impostor'
         with self.assertRaises(Recipe.DoesNotExist):
@@ -32,9 +30,7 @@ class RecipeTests(APITestCase):
         self.assertEqual(Recipe.objects.filter(title=title).count(), 1)
 
     def test_get_recipe(self):
-        """
-        Ensure we can read a recipe object.
-        """
+        """Ensure we can read a Recipe object."""
         client = authenticate_user()
         recipe = Recipe.objects.first()
 
@@ -44,9 +40,7 @@ class RecipeTests(APITestCase):
         self.assertEqual(response.data['id'], recipe.pk)
 
     def test_patch_recipe(self):
-        """
-        Ensure we can change a field in a recipe object.
-        """
+        """Ensure we can change a field in a Recipe object."""
         client = authenticate_user()
         recipe = Recipe.objects.get(title='The Original')
         new_bean_name = 'Robusto'
@@ -62,9 +56,7 @@ class RecipeTests(APITestCase):
         self.assertEqual(recipe.bean_name, new_bean_name)
 
     def test_delete_recipe(self):
-        """
-        Ensure we can delete a recipe object.
-        """
+        """Ensure we can delete a Recipe object."""
         client = authenticate_user()
         recipe = Recipe.objects.get(title='The Original')
 
