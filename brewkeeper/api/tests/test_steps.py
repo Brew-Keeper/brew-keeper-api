@@ -25,15 +25,15 @@ class StepTests(APITestCase):
             step_number=1,
             step_title='Step 1'
         )
+        self.client = authenticate_user()
 
     def test_create_step(self):
         """Ensure we can create a new Step object."""
-        client = authenticate_user()
         recipe = Recipe.objects.first()
         url = steps_endpoint.format(recipe.pk)
         self.assertEqual(recipe.steps.count(), 1)
 
-        response = client.post(url, {
+        response = self.client.post(url, {
             'duration': 12,
             'step_number': 2,
             'step_title': 'Step 2',
@@ -44,7 +44,6 @@ class StepTests(APITestCase):
 
     def test_create_reorders_step(self):
         """Ensure new Step with duplicate step_number reorders the others."""
-        client = authenticate_user()
         recipe = Recipe.objects.first()
         self.assertEqual(recipe.steps.count(), 1)
         first_step = recipe.steps.first()
@@ -62,7 +61,7 @@ class StepTests(APITestCase):
         )
         url = steps_endpoint.format(recipe.pk)
 
-        response = client.post(url, {
+        response = self.client.post(url, {
             'duration': 12,
             'step_number': 2,
             'step_title': 'New Step 2',
@@ -78,22 +77,20 @@ class StepTests(APITestCase):
 
     def test_get_step(self):
         """Ensure we can read a Step object."""
-        client = authenticate_user()
         step = Step.objects.first()
 
-        response = client.get(step_url(step))
+        response = self.client.get(step_url(step))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], step.pk)
 
     def test_patch_step(self):
         """Ensure we can change a field in a Step object."""
-        client = authenticate_user()
         step = Step.objects.first()
         new_duration = 18
         self.assertNotEqual(step.duration, new_duration)
 
-        response = client.patch(
+        response = self.client.patch(
             step_url(step),
             {
                 'duration': new_duration,
@@ -108,7 +105,6 @@ class StepTests(APITestCase):
 
     def test_patch_reorders_step(self):
         """Ensure Steps reorder when patched step_number overlaps existing."""
-        client = authenticate_user()
         recipe = Recipe.objects.first()
         self.assertEqual(recipe.steps.count(), 1)
         first_step = recipe.steps.first()
@@ -126,7 +122,7 @@ class StepTests(APITestCase):
             step_title='Step 3'
         )
 
-        response = client.patch(
+        response = self.client.patch(
             step_url(middle_step),
             {
                 'duration': 10,
@@ -145,10 +141,9 @@ class StepTests(APITestCase):
 
     def test_delete_step(self):
         """Ensure we can delete a Step object."""
-        client = authenticate_user()
         step = Step.objects.first()
 
-        response = client.delete(step_url(step))
+        response = self.client.delete(step_url(step))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(Step.DoesNotExist):
@@ -156,7 +151,6 @@ class StepTests(APITestCase):
 
     def test_delete_middle_step(self):
         """Ensure deleting a middle Step properly reorders remaining."""
-        client = authenticate_user()
         recipe = Recipe.objects.first()
         middle_step = Step.objects.create(
             recipe=recipe,
@@ -171,7 +165,7 @@ class StepTests(APITestCase):
             step_title='Step 3'
         )
 
-        response = client.delete(step_url(middle_step))
+        response = self.client.delete(step_url(middle_step))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         end_step.refresh_from_db()

@@ -16,37 +16,35 @@ class RecipeTests(APITestCase):
             title='The Original',
             bean_name='Arabica')
         self.recipe_url = '{}{}/'.format(recipes_endpoint, recipe.pk)
+        self.client = authenticate_user()
 
     def test_create_recipe(self):
         """Ensure we can create a new Recipe object."""
-        client = authenticate_user()
         title = 'The Impostor'
         with self.assertRaises(Recipe.DoesNotExist):
             Recipe.objects.get(title=title)
 
-        response = client.post(recipes_endpoint, {'title': title})
+        response = self.client.post(recipes_endpoint, {'title': title})
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Recipe.objects.filter(title=title).count(), 1)
 
     def test_get_recipe(self):
         """Ensure we can read a Recipe object."""
-        client = authenticate_user()
         recipe = Recipe.objects.first()
 
-        response = client.get(self.recipe_url)
+        response = self.client.get(self.recipe_url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], recipe.pk)
 
     def test_patch_recipe(self):
         """Ensure we can change a field in a Recipe object."""
-        client = authenticate_user()
         recipe = Recipe.objects.get(title='The Original')
         new_bean_name = 'Robusto'
         self.assertNotEqual(recipe.bean_name, new_bean_name)
 
-        response = client.patch(
+        response = self.client.patch(
             self.recipe_url,
             {'bean_name': new_bean_name},
             format='json')
@@ -57,10 +55,9 @@ class RecipeTests(APITestCase):
 
     def test_delete_recipe(self):
         """Ensure we can delete a Recipe object."""
-        client = authenticate_user()
         recipe = Recipe.objects.get(title='The Original')
 
-        response = client.delete(self.recipe_url)
+        response = self.client.delete(self.recipe_url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(Recipe.DoesNotExist):
