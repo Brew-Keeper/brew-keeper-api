@@ -21,8 +21,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     search_fields = ('title',
                      'bean_name',
                      'roast',
-                     'step__step_body',
-                     'brewnote__body',
+                     'steps__step_body',
+                     'brewnotes__body',
                      '=shared_by')
     ordering_fields = ('rating',
                        'brew_count',
