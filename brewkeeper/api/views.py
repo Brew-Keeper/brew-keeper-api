@@ -50,12 +50,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.kwargs['user_username'] == 'public':
             if self.action is 'list':
                 return api_serializers.PublicRecipeListSerializer
-            else:
-                return api_serializers.PublicRecipeDetailSerializer
+            return api_serializers.PublicRecipeDetailSerializer
         if self.action is 'list':
             return api_serializers.RecipeListSerializer
-        else:
-            return api_serializers.RecipeDetailSerializer
+        return api_serializers.RecipeDetailSerializer
 
 
 class StepViewSet(viewsets.ModelViewSet):
