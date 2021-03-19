@@ -1,7 +1,7 @@
 dj-database-url==0.3.0
 Django==1.11.28
 django-cors-headers==1.1.0
-djangorestframework==3.9.1
+djangorestframework==3.11.2
 drf-nested-routers==0.10.0
 gunicorn==19.5.0
 psycopg2==2.7.4
