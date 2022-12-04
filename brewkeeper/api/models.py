@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class Recipe(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     last_brewed_on = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=50)
     orientation = models.CharField(max_length=8, blank=True, null=True)
     rating = models.PositiveSmallIntegerField(default=0)
@@ -35,7 +35,7 @@ class Recipe(models.Model):
 
 
 class Step(models.Model):
-    recipe = models.ForeignKey(Recipe)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     step_number = models.PositiveSmallIntegerField()
     step_title = models.CharField(max_length=50)
     step_body = models.CharField(max_length=255, blank=True, null=True)
@@ -52,7 +52,7 @@ class Step(models.Model):
 
 
 class BrewNote(models.Model):
-    recipe = models.ForeignKey(Recipe)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     body = models.TextField()
     timestamp = models.DateTimeField(auto_now=True)
 
@@ -65,8 +65,8 @@ class BrewNote(models.Model):
 
 
 class PublicRating(models.Model):
-    recipe = models.ForeignKey(Recipe)
-    user = models.ForeignKey(User)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     public_rating = models.PositiveSmallIntegerField()
 
     def __str__(self):
@@ -80,8 +80,8 @@ class PublicRating(models.Model):
 
 
 class PublicComment(models.Model):
-    recipe = models.ForeignKey(Recipe)
-    user = models.ForeignKey(User)
+    recipe = models.ForeignKey(Recipe, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     public_comment = models.TextField()
     comment_timestamp = models.DateTimeField(auto_now=True)
 
@@ -96,5 +96,5 @@ class PublicComment(models.Model):
 
 
 class UserInfo(models.Model):
-    user = models.OneToOneField(User, blank=True, null=True)
+    user = models.OneToOneField(User, blank=True, null=True, on_delete=models.CASCADE)
     reset_string = models.CharField(max_length=27, blank=True, null=True)
