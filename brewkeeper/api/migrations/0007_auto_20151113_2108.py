@@ -41,21 +41,21 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='publicrating',
             name='recipe',
-            field=models.ForeignKey(to='api.Recipe'),
+            field=models.ForeignKey(to='api.Recipe', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='publicrating',
             name='user',
-            field=models.OneToOneField(to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING),
         ),
         migrations.AddField(
             model_name='publiccomment',
             name='recipe',
-            field=models.ForeignKey(to='api.Recipe'),
+            field=models.ForeignKey(to='api.Recipe', on_delete=models.DO_NOTHING),
         ),
         migrations.AddField(
             model_name='publiccomment',
             name='user',
-            field=models.OneToOneField(to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING),
         ),
     ]

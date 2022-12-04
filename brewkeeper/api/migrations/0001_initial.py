@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                 ('step_detail', models.CharField(null=True, blank=True, max_length=255)),
                 ('duration', models.PositiveSmallIntegerField(default=0)),
                 ('water_amount', models.PositiveSmallIntegerField(null=True, blank=True)),
-                ('recipe', models.ForeignKey(to='api.Recipe')),
+                ('recipe', models.ForeignKey(to='api.Recipe', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['step_number'],
@@ -68,6 +68,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='brewnote',
             name='recipe',
-            field=models.ForeignKey(to='api.Recipe'),
+            field=models.ForeignKey(to='api.Recipe', on_delete=models.CASCADE),
         ),
     ]
