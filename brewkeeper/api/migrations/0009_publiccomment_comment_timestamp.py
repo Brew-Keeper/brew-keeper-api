@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='publiccomment',
             name='comment_timestamp',
-            field=models.DateTimeField(default=datetime.datetime(2015, 11, 14, 18, 34, 43, 18025), auto_now=True),
+            field=models.DateTimeField(auto_now=True),
             preserve_default=False,
         ),
     ]
