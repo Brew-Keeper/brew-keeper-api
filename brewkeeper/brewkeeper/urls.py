@@ -1,7 +1,7 @@
 """brewkeeper URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.8/topics/http/urls/
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -17,6 +17,7 @@ from django.urls import include, re_path
 from django.contrib import admin
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework_nested import routers
+
 from api import views as api_views
 
 

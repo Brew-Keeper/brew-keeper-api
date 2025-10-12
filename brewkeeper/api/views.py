@@ -1,19 +1,21 @@
+import os
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
+import requests
 from rest_framework import viewsets, status, filters, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+
 from .models import Recipe, Step, BrewNote, PublicRating, PublicComment, UserInfo
 from .permissions import IsAskerOrPublic
 from . import serializers as api_serializers
-import requests
-import os
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -30,17 +32,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAskerOrPublic,)
 
     def get_queryset(self):
-        if self.kwargs['user_username'] == 'public' \
-                and self.request.method in permissions.SAFE_METHODS:
-            return User.objects.get(username='public').recipes.all() \
+        if (
+            self.kwargs['user_username'] == 'public'
+            and self.request.method in permissions.SAFE_METHODS
+        ):
+            return (
+                User.objects.get(username='public')
+                .recipes.all()
                 .prefetch_related('public_comments', 'public_ratings', 'steps')
-        return self.request.user.recipes.all() \
+            )
+        return (
+            self.request.user
+            .recipes.all()
             .prefetch_related('steps', 'brewnotes')
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
-        if self.kwargs['user_username'] == 'public' \
-                and self.request.method == 'POST':
+        if (
+            self.kwargs['user_username'] == 'public'
+            and self.request.method == 'POST'
+        ):
             context['username'] = 'public'
         else:
             context['username'] = self.request.user.username
