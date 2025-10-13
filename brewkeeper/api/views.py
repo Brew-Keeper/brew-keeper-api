@@ -3,7 +3,7 @@ import os
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 import requests
@@ -152,7 +152,9 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return BrewNote.objects.all().filter(recipe=recipe)
+        if recipe.user.username == 'public' or recipe.user == self.request.user:
+            return BrewNote.objects.all().filter(recipe=recipe)
+        return Http404
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
