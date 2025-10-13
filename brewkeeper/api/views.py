@@ -20,50 +20,43 @@ from . import serializers as api_serializers
 
 class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ('title',
-                     'bean_name',
-                     'roast',
-                     'steps__step_body',
-                     'brewnotes__body',
-                     '=shared_by')
-    ordering_fields = ('rating',
-                       'brew_count',
-                       'created_on')
+    search_fields = (
+        "title",
+        "bean_name",
+        "roast",
+        "steps__step_body",
+        "brewnotes__body",
+        "=shared_by",
+    )
+    ordering_fields = ("rating", "brew_count", "created_on")
     permission_classes = (IsAskerOrPublic,)
 
     def get_queryset(self):
         if (
-            self.kwargs['user_username'] == 'public'
+            self.kwargs["user_username"] == "public"
             and self.request.method in permissions.SAFE_METHODS
         ):
             return (
-                User.objects.get(username='public')
+                User.objects.get(username="public")
                 .recipes.all()
-                .prefetch_related('public_comments', 'public_ratings', 'steps')
+                .prefetch_related("public_comments", "public_ratings", "steps")
             )
-        return (
-            self.request.user
-            .recipes.all()
-            .prefetch_related('steps', 'brewnotes')
-        )
+        return self.request.user.recipes.all().prefetch_related("steps", "brewnotes")
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
-        if (
-            self.kwargs['user_username'] == 'public'
-            and self.request.method == 'POST'
-        ):
-            context['username'] = 'public'
+        if self.kwargs["user_username"] == "public" and self.request.method == "POST":
+            context["username"] = "public"
         else:
-            context['username'] = self.request.user.username
+            context["username"] = self.request.user.username
         return context
 
     def get_serializer_class(self):
-        if self.kwargs['user_username'] == 'public':
-            if self.action == 'list':
+        if self.kwargs["user_username"] == "public":
+            if self.action == "list":
                 return api_serializers.PublicRecipeListSerializer
             return api_serializers.PublicRecipeDetailSerializer
-        if self.action == 'list':
+        if self.action == "list":
             return api_serializers.RecipeListSerializer
         return api_serializers.RecipeDetailSerializer
 
@@ -73,41 +66,41 @@ class StepViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsAskerOrPublic,)
 
     def get_queryset(self):
-        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
         if recipe.user == self.request.user:
             return Step.objects.all().filter(recipe=recipe)
         return Http404
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
-        context['recipe_id'] = self.kwargs['recipe_pk']
+        context["recipe_id"] = self.kwargs["recipe_pk"]
         return context
 
     def perform_create(self, serializer):
         """Update total duration and rearrange steps if necessary"""
 
-        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        existing_steps = recipe.steps.all().order_by('step_number')
+        recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
+        existing_steps = recipe.steps.all().order_by("step_number")
 
         overlap = False
         for step in existing_steps:
-            if step.step_number == int(serializer.initial_data['step_number']):
+            if step.step_number == int(serializer.initial_data["step_number"]):
                 overlap = True
             if overlap:
                 step.step_number += 1
                 step.save()
 
         serializer.save()
-        total = recipe.steps.aggregate(Sum('duration'))
-        recipe.total_duration = total['duration__sum']
+        total = recipe.steps.aggregate(Sum("duration"))
+        recipe.total_duration = total["duration__sum"]
         recipe.save()
 
     def perform_update(self, serializer):
         """Rearrange steps if necessary"""
         instance = self.get_object()
-        new_step_num = int(serializer.initial_data['step_number'])
+        new_step_num = int(serializer.initial_data["step_number"])
         if instance.step_number != new_step_num:
-            curr_steps = instance.recipe.steps.all().order_by('step_number')
+            curr_steps = instance.recipe.steps.all().order_by("step_number")
             overlap = False
 
             # If new num is lower, + 1 to all steps between it an new val
@@ -129,12 +122,12 @@ class StepViewSet(viewsets.ModelViewSet):
                         step.save()
 
         serializer.save()
-        total = instance.recipe.steps.aggregate(Sum('duration'))
-        instance.recipe.total_duration = total['duration__sum']
+        total = instance.recipe.steps.aggregate(Sum("duration"))
+        instance.recipe.total_duration = total["duration__sum"]
         instance.recipe.save()
 
     def perform_destroy(self, instance):
-        curr_steps = instance.recipe.steps.all().order_by('step_number')
+        curr_steps = instance.recipe.steps.all().order_by("step_number")
         for step in curr_steps:
             if step.step_number > instance.step_number:
                 step.step_number -= 1
@@ -153,14 +146,14 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.BrewNoteSerializer
 
     def get_queryset(self):
-        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        if recipe.user.username == 'public' or recipe.user == self.request.user:
+        recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
+        if recipe.user.username == "public" or recipe.user == self.request.user:
             return BrewNote.objects.all().filter(recipe=recipe)
         return Http404
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
-        context['recipe_id'] = self.kwargs['recipe_pk']
+        context["recipe_id"] = self.kwargs["recipe_pk"]
         return context
 
 
@@ -168,37 +161,35 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.PublicRatingSerializer
 
     def get_queryset(self):
-        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return PublicRating.objects.filter(recipe=recipe,
-                                           user=self.request.user)
+        recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
+        return PublicRating.objects.filter(recipe=recipe, user=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
-        context['recipe_id'] = self.kwargs['recipe_pk']
-        context['username'] = self.request.user.username
+        context["recipe_id"] = self.kwargs["recipe_pk"]
+        context["username"] = self.request.user.username
         return context
 
     def perform_create(self, serializer):
-        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        serializer.initial_data['user'] = self.request.user
+        recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
+        serializer.initial_data["user"] = self.request.user
         serializer.save()
-        rating_calc = recipe.public_ratings.aggregate(Avg('public_rating'))
-        recipe.average_rating = rating_calc['public_rating__avg']
+        rating_calc = recipe.public_ratings.aggregate(Avg("public_rating"))
+        recipe.average_rating = rating_calc["public_rating__avg"]
         recipe.save()
 
     def perform_update(self, serializer):
         serializer.save()
         instance = self.get_object()
-        rating_calc = instance.recipe.public_ratings.aggregate(
-            Avg('public_rating'))
-        instance.recipe.average_rating = rating_calc['public_rating__avg']
+        rating_calc = instance.recipe.public_ratings.aggregate(Avg("public_rating"))
+        instance.recipe.average_rating = rating_calc["public_rating__avg"]
         instance.recipe.save()
 
     def perform_destroy(self, instance):
         recipe = instance.recipe
         instance.delete()
-        rating_calc = recipe.public_ratings.aggregate(Avg('public_rating'))
-        recipe.average_rating = rating_calc['public_rating__avg']
+        rating_calc = recipe.public_ratings.aggregate(Avg("public_rating"))
+        recipe.average_rating = rating_calc["public_rating__avg"]
         recipe.save()
 
 
@@ -206,29 +197,29 @@ class PublicCommentViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.PublicCommentSerializer
 
     def get_queryset(self):
-        recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
+        recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
         return PublicComment.objects.all().filter(recipe=recipe)
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
-        context['recipe_id'] = self.kwargs['recipe_pk']
-        context['username'] = self.request.user.username
+        context["recipe_id"] = self.kwargs["recipe_pk"]
+        context["username"] = self.request.user.username
         return context
 
     def perform_create(self, serializer):
-        serializer.validated_data['user'] = self.request.user
+        serializer.validated_data["user"] = self.request.user
         serializer.save()
 
 
 class UserViewSet(viewsets.GenericViewSet):
     serializer_class = api_serializers.UserSerializer
-    lookup_field = 'username'
+    lookup_field = "username"
 
     def get_queryset(self):
-        return User.objects.filter(username=self.kwargs['username'])
+        return User.objects.filter(username=self.kwargs["username"])
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @ensure_csrf_cookie
 def whoami(request):
     user = request.user
@@ -236,30 +227,32 @@ def whoami(request):
         serializer = api_serializers.UserSerializer(user)
         return Response(serializer.data)
     else:
-        return Response({"username": user.username},
-                        status=status.HTTP_404_NOT_FOUND)
+        return Response({"username": user.username}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['POST'])
-@permission_classes((AllowAny, ))
+@api_view(["POST"])
+@permission_classes((AllowAny,))
 def register_user(request):
-    username = request.data['username']
-    password = request.data['password']
+    username = request.data["username"]
+    password = request.data["password"]
     user = User.objects.filter(username=username)
     if len(user) != 0:
-        return HttpResponse('That username is already in the database.',
-                            status=status.HTTP_400_BAD_REQUEST)
-    email = request.data.get('email', '')
-    if email == '':
-        return HttpResponse('Email is a required field.',
-                            status=status.HTTP_400_BAD_REQUEST)
+        return HttpResponse(
+            "That username is already in the database.",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    email = request.data.get("email", "")
+    if email == "":
+        return HttpResponse(
+            "Email is a required field.", status=status.HTTP_400_BAD_REQUEST
+        )
     new_user = User(username=username)
     new_user.set_password(password)
     new_user.email = email
     new_user.save()
     add_default_recipes(new_user)
     token, created = Token.objects.get_or_create(user=new_user)
-    return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+    return Response({"token": token.key}, status=status.HTTP_201_CREATED)
 
 
 def add_default_recipes(new_user):
@@ -280,7 +273,7 @@ def add_default_recipes(new_user):
             total_water_amount=def_rec.total_water_amount,
             water_units=def_rec.water_units,
             temp=def_rec.temp,
-            total_duration=def_rec.total_duration
+            total_duration=def_rec.total_duration,
         )
         new_rec.save()
         for step in def_rec.steps.all():
@@ -291,117 +284,133 @@ def add_default_recipes(new_user):
                 step_body=step.step_body,
                 duration=step.duration,
                 water_amount=step.water_amount,
-                water_units=step.water_units
+                water_units=step.water_units,
             )
             new_step.save()
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 def login_user(request):
-    username = request.POST['username']
-    password = request.POST['password']
+    username = request.POST["username"]
+    password = request.POST["password"]
     user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:
             login(request, user)
-            return HttpResponse('Successfully logged in.')
+            return HttpResponse("Successfully logged in.")
         else:
             # Return a 'disabled account' error message
-            return HttpResponseBadRequest('Account disabled.')
+            return HttpResponseBadRequest("Account disabled.")
     else:
         # Return an 'invalid login' error message.
-        return HttpResponseBadRequest('Invalid login.')
+        return HttpResponseBadRequest("Invalid login.")
 
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated, ))
+@api_view(["POST"])
+@permission_classes((IsAuthenticated,))
 def change_password(request):
     """Allow Logged in user to change their password."""
-    username = request.data['username']
-    old_password = request.data['old_password']
-    new_password = request.data['new_password']
+    username = request.data["username"]
+    old_password = request.data["old_password"]
+    new_password = request.data["new_password"]
     user = User.objects.filter(username=username)
     if len(user) == 0:
-        return HttpResponse('That username is not in the database.')
+        return HttpResponse("That username is not in the database.")
     if authenticate(username=username, password=old_password):
         u = user[0]
         u.set_password(new_password)
         u.save()
         token, created = Token.objects.get_or_create(user=u)
-        return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+        return Response({"token": token.key}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['POST'])
-@permission_classes((AllowAny, ))
+@api_view(["POST"])
+@permission_classes((AllowAny,))
 def send_reset_string(request):
     """Email user a random_string with which to reset a forgotten password."""
-    username = request.data['username']
+    username = request.data["username"]
     user = User.objects.filter(username=username)
     if len(user) == 0:
-        return HttpResponse('That username is not in the database. ')
+        return HttpResponse("That username is not in the database. ")
     import random
+
     reset_string = "".join(
-        [random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)])
+        [random.choice("abcdefghijklmnopqrstuvwxyz0123456789") for i in range(27)]
+    )
     recipient = user[0].email
-    html = 'https://brew-keeper.firebaseapp.com/#/reset-pw'
-    MAILGUN_KEY = os.environ['MAILGUN_KEY']
-    sandbox = 'sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org'
-    request_url = 'https://api.mailgun.net/v3/{}/messages'.format(sandbox)
-    request = requests.post(request_url, auth=('api', MAILGUN_KEY), data={
-        'from': 'Mailgun Sandbox <postmaster@sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org>',
-        'to': recipient,
-        'subject': 'Brew Keeper Password Reset',
-        'text': 'To reset your Brew Keeper password, please copy this code\n\n{}'.format(reset_string) +
-        '\n\nand paste it into the Reset String field at: ' + html})
+    html = "https://brew-keeper.firebaseapp.com/#/reset-pw"
+    MAILGUN_KEY = os.environ["MAILGUN_KEY"]
+    sandbox = "sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org"
+    request_url = "https://api.mailgun.net/v3/{}/messages".format(sandbox)
+    request = requests.post(
+        request_url,
+        auth=("api", MAILGUN_KEY),
+        data={
+            "from": "Mailgun Sandbox <postmaster@sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org>",
+            "to": recipient,
+            "subject": "Brew Keeper Password Reset",
+            "text": "To reset your Brew Keeper password, please copy this code\n\n{}".format(
+                reset_string
+            )
+            + "\n\nand paste it into the Reset String field at: "
+            + html,
+        },
+    )
     try:
         userinfo = UserInfo.objects.get(user_id=user[0].pk)
     except:
         userinfo = UserInfo(user_id=user[0].pk)
     userinfo.reset_string = reset_string
     userinfo.save()
-    if str(request.status_code) == '200':
+    if str(request.status_code) == "200":
         return Response(status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
-@permission_classes((AllowAny, ))
+@api_view(["POST"])
+@permission_classes((AllowAny,))
 def reset_password(request):
     """Email reset_string to create a new password"""
-    new_password = request.data['new_password']
+    new_password = request.data["new_password"]
     try:
-        user = User.objects.get(username=request.data['username'])
+        user = User.objects.get(username=request.data["username"])
     except:
-        return HttpResponse('That username is not in the database.',
-                            status=status.HTTP_400_BAD_REQUEST)
-    if user.email != request.data['email']:
-        return HttpResponse('Email does not match registered email.',
-                            status=status.HTTP_400_BAD_REQUEST)
+        return HttpResponse(
+            "That username is not in the database.", status=status.HTTP_400_BAD_REQUEST
+        )
+    if user.email != request.data["email"]:
+        return HttpResponse(
+            "Email does not match registered email.", status=status.HTTP_400_BAD_REQUEST
+        )
     try:
         reset_string = user.userinfo.reset_string
     except:
-        return HttpResponse('You have not requested a password reset string.',
-                            status=status.HTTP_400_BAD_REQUEST)
-    if reset_string != request.data['reset_string']:
-        return HttpResponse('Reset string does not match expected reset_string.',
-                            status=status.HTTP_400_BAD_REQUEST)
+        return HttpResponse(
+            "You have not requested a password reset string.",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if reset_string != request.data["reset_string"]:
+        return HttpResponse(
+            "Reset string does not match expected reset_string.",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     user.set_password(new_password)
     user.save()
     user.userinfo.delete()
-    user = authenticate(username=request.data['username'],
-                        password=new_password)
+    user = authenticate(username=request.data["username"], password=new_password)
     login(request, user)
     token, created = Token.objects.get_or_create(user=user)
-    return Response({'token': token.key,
-                     'message': 'Password successfully reset'},
-                    status=status.HTTP_200_OK)
+    return Response(
+        {"token": token.key, "message": "Password successfully reset"},
+        status=status.HTTP_200_OK,
+    )
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def logout_user(request):
     Token.objects.get(user=request.user).delete()
-    return Response({'username': None})
+    return Response({"username": None})
