@@ -74,7 +74,9 @@ class StepViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         recipe = get_object_or_404(Recipe, pk=self.kwargs['recipe_pk'])
-        return Step.objects.all().filter(recipe=recipe)
+        if recipe.user == self.request.user:
+            return Step.objects.all().filter(recipe=recipe)
+        return Http404
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
@@ -230,7 +232,7 @@ class UserViewSet(viewsets.GenericViewSet):
 @ensure_csrf_cookie
 def whoami(request):
     user = request.user
-    if user.is_authenticated():
+    if user.is_authenticated:
         serializer = api_serializers.UserSerializer(user)
         return Response(serializer.data)
     else:
