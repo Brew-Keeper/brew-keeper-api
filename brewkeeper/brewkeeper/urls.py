@@ -60,33 +60,22 @@ urlpatterns = [
     re_path(r'^accounts/', include('django.contrib.auth.urls')),
 
     re_path(r'^api/', include(router.urls)),
-
     re_path(r'^api/', include(recipes_router.urls)),
-
     re_path(r'^api/', include(recipes_steps_router.urls)),
-
     re_path(r'^api/', include(recipes_brewnotes_router.urls)),
-
     re_path(r'^api/', include(recipes_ratings_router.urls)),
-
     re_path(r'^api/', include(recipes_comments_router.urls)),
 
     re_path(r'^api/register/$', api_views.register_user, name='register'),
-
     re_path(r'^api/login/$', obtain_auth_token),
-
     re_path(r'^api/logout/$', api_views.logout_user, name='logout'),
-
     re_path(r'^api/change-pw/$', api_views.change_password, name='change_password'),
-
     re_path(r'^api/get-reset/$', api_views.send_reset_string, name='get_reset'),
-
     re_path(r'^api/reset-pw/$', api_views.reset_password, name='reset_password'),
 
     re_path(r'^api/whoami/$', api_views.whoami, name='who-am-i'),
 
     re_path(r'^api/users/don\.pablo/', include(recipes_ratings_router.urls)),
-
     re_path(r'^api/users/don\.pablo/', include(recipes_comments_router.urls)),
 
     re_path(r'^api-auth/',
