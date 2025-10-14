@@ -1,4 +1,5 @@
 import os
+import re
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -241,6 +242,12 @@ def whoami(request):
 def register_user(request):
     username = request.data["username"]
     password = request.data["password"]
+    if re.search(r'\.|\/', username):
+        return HttpResponse(
+            "username cannot contain periods or slashes.",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     user = User.objects.filter(username=username)
     if len(user) != 0:
         return HttpResponse(
