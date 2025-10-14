@@ -1,7 +1,5 @@
 """Tests of register_user view method."""
 
-from unittest.mock import Mock
-
 from django.test import Client
 from rest_framework import status
 import pytest
@@ -76,11 +74,8 @@ class TestRegisterUser:
         assert response.text == "That username is already in the database."
 
     @pytest.mark.django_db()
-    def test_can_create(self, mocker):
+    def test_can_create(self):
         """Ensure that someone can register."""
-        # Arrange
-        mocker.patch("api.views.add_default_recipes", return_value=Mock())
-
         # Act
         response = Client().post(
             "/api/register/",
