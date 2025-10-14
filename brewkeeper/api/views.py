@@ -69,7 +69,7 @@ class StepViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
         if recipe.user == self.request.user:
             return Step.objects.all().filter(recipe=recipe)
-        return Http404
+        raise Http404
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
@@ -80,6 +80,8 @@ class StepViewSet(viewsets.ModelViewSet):
         """Update total duration and rearrange steps if necessary"""
 
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
+        if recipe.user != self.request.user:
+            raise Http404
         existing_steps = recipe.steps.all().order_by("step_number")
 
         overlap = False
@@ -98,6 +100,8 @@ class StepViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         """Rearrange steps if necessary"""
         instance = self.get_object()
+        if instance.recipe.user != self.request.user:
+            raise Http404
         new_step_num = int(serializer.initial_data["step_number"])
         if instance.step_number != new_step_num:
             curr_steps = instance.recipe.steps.all().order_by("step_number")
@@ -127,6 +131,8 @@ class StepViewSet(viewsets.ModelViewSet):
         instance.recipe.save()
 
     def perform_destroy(self, instance):
+        if instance.recipe.user != self.request.user:
+            raise Http404
         curr_steps = instance.recipe.steps.all().order_by("step_number")
         for step in curr_steps:
             if step.step_number > instance.step_number:
@@ -149,7 +155,7 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
         if recipe.user.username == "public" or recipe.user == self.request.user:
             return BrewNote.objects.all().filter(recipe=recipe)
-        return Http404
+        raise Http404
 
     def get_serializer_context(self):
         context = super().get_serializer_context().copy()
