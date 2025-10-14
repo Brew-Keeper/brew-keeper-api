@@ -263,8 +263,8 @@ def register_user(request):
     new_user.set_password(password)
     new_user.email = email
     new_user.save()
-    add_default_recipes(new_user)
     token, created = Token.objects.get_or_create(user=new_user)
+    add_default_recipes(new_user)
     return Response({"token": token.key}, status=status.HTTP_201_CREATED)
 
 
