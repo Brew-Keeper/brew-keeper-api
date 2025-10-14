@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from .helpers import authenticate_user
 from api.models import Step, Recipe
 
-steps_endpoint = "/api/users/don.pablo/recipes/{}/steps/"
+steps_endpoint = "/api/users/donpablo/recipes/{}/steps/"
 
 
 def step_url(step):
@@ -15,7 +15,7 @@ def step_url(step):
 class StepTests(APITestCase):
 
     def setUp(self):
-        user = User.objects.create(username="don.pablo", password="password")
+        user = User.objects.create(username="donpablo", password="password")
         recipe = Recipe.objects.create(
             user=user, title="The Original", bean_name="Arabica"
         )

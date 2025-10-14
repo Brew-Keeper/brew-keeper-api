@@ -5,13 +5,13 @@ from django.contrib.auth.models import User
 from .helpers import authenticate_user
 from api.models import Recipe
 
-recipes_endpoint = "/api/users/don.pablo/recipes/"
+recipes_endpoint = "/api/users/donpablo/recipes/"
 
 
 class RecipeTests(APITestCase):
 
     def setUp(self):
-        user = User.objects.create(username="don.pablo", password="password")
+        user = User.objects.create(username="donpablo", password="password")
         recipe = Recipe.objects.create(
             user=user, title="The Original", bean_name="Arabica"
         )
