@@ -1,3 +1,7 @@
+"""Tests of register_user view method."""
+
+from unittest.mock import Mock
+
 from django.test import Client
 from rest_framework import status
 import pytest
@@ -70,3 +74,23 @@ class TestRegisterUser:
         # Assert
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.text == "That username is already in the database."
+
+    @pytest.mark.django_db()
+    def test_can_create(self, mocker):
+        """Ensure that someone can register."""
+        # Arrange
+        mocker.patch("api.views.add_default_recipes", return_value=Mock())
+
+        # Act
+        response = Client().post(
+            "/api/register/",
+            data={
+                "username": "donpablo",
+                "password": "password",
+                "email": "don@pablo.com",
+            },
+        )
+
+        # Assert
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.json().get("token") is not None
