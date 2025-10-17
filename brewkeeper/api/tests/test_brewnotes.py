@@ -29,46 +29,61 @@ class BrewNoteTests(APITestCase):
 
     def test_create_brewnote(self):
         """Ensure we can create a new BrewNote object."""
+        # Arrange
         recipe = Recipe.objects.first()
         url = brewnotes_endpoint.format(recipe.pk)
         brewnote_body = "A test brewnote"
         with pytest.raises(BrewNote.DoesNotExist):
             BrewNote.objects.get(body=brewnote_body)
 
+        token, _ = Token.objects.get_or_create(user=recipe.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+
+        # Act
         response = self.client.post(url, {"body": brewnote_body})
 
+        # Assert
         assert response.status_code == status.HTTP_201_CREATED
         assert BrewNote.objects.filter(body=brewnote_body).count() == 1
 
     def test_get_brewnote(self):
         """Ensure we can read a BrewNote object."""
+        # Arrange
         brewnote = BrewNote.objects.first()
 
+        # Act
         response = self.client.get(self.brewnote_url)
 
+        # Assert
         assert response.status_code == status.HTTP_200_OK
         assert response.data["id"] == brewnote.pk
 
     def test_patch_brewnote(self):
         """Ensure we can change a field in a BrewNote object."""
+        # Arrange
         brewnote = BrewNote.objects.first()
         new_body = "A new brewnote body"
         assert brewnote.body != new_body
 
+        # Act
         response = self.client.patch(
             self.brewnote_url, {"body": new_body}, format="json"
         )
 
+        # Assert
         assert response.status_code == status.HTTP_200_OK
         brewnote.refresh_from_db()
         assert brewnote.body == new_body
 
     def test_delete_brewnote(self):
         """Ensure we can delete a BrewNote object."""
+        # Arrange
         brewnote = BrewNote.objects.first()
 
+        # Act
         response = self.client.delete(self.brewnote_url)
 
+        # Assert
         assert response.status_code == status.HTTP_204_NO_CONTENT
         with pytest.raises(BrewNote.DoesNotExist):
             BrewNote.objects.get(pk=brewnote.pk)
@@ -84,7 +99,7 @@ class BrewNoteTests(APITestCase):
 
         # clear the test user's auth
         self.client.force_authenticate()
-        self.client.force_authenticate(user=different_user, token=token)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
 
         # Act
         response = self.client.get(self.brewnote_url)
@@ -103,7 +118,7 @@ class BrewNoteTests(APITestCase):
 
         # clear the test user's auth
         self.client.force_authenticate()
-        self.client.force_authenticate(user=different_user, token=token)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
 
         # Act
         response = self.client.patch(
