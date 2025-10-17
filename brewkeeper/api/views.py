@@ -3,20 +3,20 @@ import re
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.db.models import Sum, Avg
+from django.db.models import Avg, Sum
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 import requests
-from rest_framework import viewsets, status, filters, permissions
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Recipe, Step, BrewNote, PublicRating, PublicComment, UserInfo
-from .permissions import IsAskerOrPublic
 from . import serializers as api_serializers
+from .models import BrewNote, PublicComment, PublicRating, Recipe, Step, UserInfo
+from .permissions import IsAskerOrPublic
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
