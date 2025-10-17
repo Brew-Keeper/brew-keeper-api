@@ -112,3 +112,28 @@ class BrewNoteTests(APITestCase):
 
         # Assert
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_cannot_create_on_unowned_recipe(self):
+        """Ensure someone can't create a brewnote another's recipe."""
+        # Arrange
+        # get an existing recipe
+        recipe = Recipe.objects.first()
+        url = brewnotes_endpoint.format(recipe.pk)
+
+        # create a new user who couldn't have created it
+        different_user = User.objects.create(
+            username="someone_else", password="password"
+        )
+        token = Token.objects.create(user=different_user)
+
+        # clear the test user's auth, then set it
+        self.client.force_authenticate(user=None)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+
+        # Act
+        response = self.client.post(
+            url, {"body": "I should not be able to post this"}, format="json"
+        )
+
+        # Assert
+        assert response.status_code == status.HTTP_404_NOT_FOUND
