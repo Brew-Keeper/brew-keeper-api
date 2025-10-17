@@ -162,6 +162,15 @@ class BrewNoteViewSet(viewsets.ModelViewSet):
         context["recipe_id"] = self.kwargs["recipe_pk"]
         return context
 
+    def perform_create(self, serializer: api_serializers.BrewNoteSerializer):
+        """
+        Ensure only authorized users can create BrewNotes.
+        """
+        recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
+        if recipe.user.username != "public" and recipe.user != self.request.user:
+            raise Http404
+        super().perform_create(serializer)
+
 
 class PublicRatingViewSet(viewsets.ModelViewSet):
     serializer_class = api_serializers.PublicRatingSerializer
@@ -176,7 +185,10 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
         context["username"] = self.request.user.username
         return context
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: api_serializers.PublicRatingSerializer):
+        """
+        Create public rating, then update the public average rating.
+        """
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
         serializer.initial_data["user"] = self.request.user
         serializer.save()
@@ -184,14 +196,20 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
         recipe.average_rating = rating_calc["public_rating__avg"]
         recipe.save()
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer: api_serializers.PublicRatingSerializer):
+        """
+        Update public rating, then update the public average rating.
+        """
         serializer.save()
         instance = self.get_object()
         rating_calc = instance.recipe.public_ratings.aggregate(Avg("public_rating"))
         instance.recipe.average_rating = rating_calc["public_rating__avg"]
         instance.recipe.save()
 
-    def perform_destroy(self, instance):
+    def perform_destroy(self, instance: BrewNote):
+        """
+        Delete public rating, then update the public average rating.
+        """
         recipe = instance.recipe
         instance.delete()
         rating_calc = recipe.public_ratings.aggregate(Avg("public_rating"))
@@ -262,7 +280,7 @@ def register_user(request):
     new_user.set_password(password)
     new_user.email = email
     new_user.save()
-    token, created = Token.objects.get_or_create(user=new_user)
+    token, _ = Token.objects.get_or_create(user=new_user)
     add_default_recipes(new_user)
     return Response({"token": token.key}, status=status.HTTP_201_CREATED)
 
