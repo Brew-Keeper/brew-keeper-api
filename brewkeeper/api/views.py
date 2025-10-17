@@ -79,7 +79,6 @@ class StepViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Update total duration and rearrange steps if necessary"""
-
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
         if recipe.user != self.request.user:
             raise Http404
@@ -242,7 +241,7 @@ def whoami(request):
 def register_user(request):
     username = request.data["username"]
     password = request.data["password"]
-    if re.search(r'\.|\/', username):
+    if re.search(r"\.|\/", username):
         return HttpResponse(
             "username cannot contain periods or slashes.",
             status=status.HTTP_400_BAD_REQUEST,
