@@ -1,14 +1,20 @@
-from rest_framework import status
-from rest_framework.test import APITestCase
+"""Tests for BrewNotes."""
+
 from django.contrib.auth.models import User
+import pytest
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APITestCase
+
+from api.models import BrewNote, Recipe
 
 from .helpers import authenticate_user
-from api.models import BrewNote, Recipe
 
 brewnotes_endpoint = "/api/users/donpablo/recipes/{}/brewnotes/"
 
 
 class BrewNoteTests(APITestCase):
+    """Tests for BrewNotes."""
 
     def setUp(self):
         user = User.objects.create(username="donpablo", password="password")
@@ -26,13 +32,13 @@ class BrewNoteTests(APITestCase):
         recipe = Recipe.objects.first()
         url = brewnotes_endpoint.format(recipe.pk)
         brewnote_body = "A test brewnote"
-        with self.assertRaises(BrewNote.DoesNotExist):
+        with pytest.raises(BrewNote.DoesNotExist):
             BrewNote.objects.get(body=brewnote_body)
 
         response = self.client.post(url, {"body": brewnote_body})
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(BrewNote.objects.filter(body=brewnote_body).count(), 1)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert BrewNote.objects.filter(body=brewnote_body).count() == 1
 
     def test_get_brewnote(self):
         """Ensure we can read a BrewNote object."""
@@ -40,22 +46,22 @@ class BrewNoteTests(APITestCase):
 
         response = self.client.get(self.brewnote_url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["id"], brewnote.pk)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["id"] == brewnote.pk
 
     def test_patch_brewnote(self):
         """Ensure we can change a field in a BrewNote object."""
         brewnote = BrewNote.objects.first()
         new_body = "A new brewnote body"
-        self.assertNotEqual(brewnote.body, new_body)
+        assert brewnote.body != new_body
 
         response = self.client.patch(
             self.brewnote_url, {"body": new_body}, format="json"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        assert response.status_code == status.HTTP_200_OK
         brewnote.refresh_from_db()
-        self.assertEqual(brewnote.body, new_body)
+        assert brewnote.body == new_body
 
     def test_delete_brewnote(self):
         """Ensure we can delete a BrewNote object."""
