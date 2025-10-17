@@ -1,0 +1,109 @@
+[tool.ruff]
+exclude = [
+    ".config/*",
+    ".git/*",
+    ".github/*",
+    ".gitlab/*",
+    ".idea",
+    ".terraform/*",
+    ".venv/*",
+    "__init__.py",
+    "__pycache__/*",
+]
+force-exclude = true
+indent-width = 4
+include = ["*.py"]
+line-length = 88
+show-fixes = true
+src = ["src"]
+target-version = "py313" # Assume Python 3.13
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 72
+indent-style = "space"
+line-ending = "auto"
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+extend-safe-fixes = [
+    "I",  # isort
+    "D415",  # ends-in-punctuation
+    "E713",  # not-in-test
+    "F541",  # f-string-missing-placeholders
+]
+# Ignore the following errors:
+ignore = [
+    "ANN201",  # missing-returns-doc
+    "ANN204",  # missing-return-type
+    "ANN401",  # any-type
+    "B012",  # jump-statement-in-finally
+    "B904",  # raise-without-from-inside-except
+    "COM812",  # missing-trailing-comma
+    "D107",  # missing-docstring-in-init
+    "D200",  # fits-on-one-line
+    "D205",  # blank-line-after-summary
+    "D400",  # ends-in-period
+    "D401",  # non-imperative-mood
+    "E402",  # module-import-not-at-top-of-file
+    "E501",  # line-too-long
+    "PIE790",  # unnecessary-pass
+    "PLR0913",  # too-many-arguments
+    "PLR2004",  # magic-value-comparison
+    "RET502",  # implicit-return-value
+    "RET503",  # implicit-return
+    "RUF012",  # mutable-class-default
+    "SIM105",  # suppressible-exception
+    "TC002",  # typing-only-third-party-import
+    "W505",  # doc-line-too-long
+]
+logger-objects = ["logger", "sglog"]
+select = [
+    "A",  # flake8-builtins
+    "ANN",  # flake8-annotations
+    "ARG",  # flake8-unused-arguments
+    "ASYNC",  # flake8-async
+    "B",  # flake8-bugbear
+    "BLE",  # flake8-blind-except
+    "C4",  # flake8-comprehensions
+    "COM",  # flake8-commas
+    "D",  # pydocstyle
+    "E",  # pycodestyle
+    "EXE",  # flake8-executable
+    "F",  # pyflakes
+    "I",  # isort
+    "ICN",  # flake8-import-conventions
+    "INP",  # flake8-no-pep420
+    "INT",  # flake8-gettext
+    "N",  # pep8-naming
+    "PIE",  # flake8-pie
+    "PLC",  # pylint-convention
+    "PLE",  # pylint-error
+    "PLR",  # pylint-refactor
+    "PLW",  # pylint-warning
+    "Q",  # flake8-quotes
+    "RET",  # flake8-return
+    "RUF",  # ruff-specific
+    "RSE",  # flake8-raise
+    "SIM",  # flake8-simplify
+    "SLF",  # flake8-self
+    "T20",  # flake8-print
+    "TCH",  # flake8-type-checking
+    "TID",  # flake8-tidy-imports
+    "W",  # pycodestyle
+]
+
+[tool.ruff.lint.isort]
+case-sensitive = false
+combine-as-imports = true
+force-sort-within-sections = true
+known-first-party = ["cli", "safe", "tests", "util"]
+order-by-type = false
+split-on-trailing-comma = true
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 72  # W505: set docstring line length to 72
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"

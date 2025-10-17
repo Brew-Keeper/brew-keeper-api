@@ -1,0 +1,23 @@
+[tool.ruff]
+extend = "../../../pyproject.toml"  # adjust to your file structure
+
+[tool.ruff.lint]
+extend-select = [
+    "PT",  # flake8-pytest-style
+]
+ignore = [
+    "ANN001",  # missing-annotation
+    "B024",  # abstract-base-class-without-abstract-method
+    "B904",  # raise-without-from-inside-except
+    "D102",  # undocumented-public-method
+    "D103",  # missing-docstring
+    "E501",  # line-too-long
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0915",  # too-many-statements
+    "PT004",  # pytest-missing-fixture-name-undescore
+    "PT005",  # pytest-incorrect-fixture-name-undescore
+    "PT006",  # pytest-parametrize-names-wrong-type
+    "SLF001",  # private-member-access
+    "T",  # flake8-print
+]
