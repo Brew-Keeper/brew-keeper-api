@@ -69,6 +69,46 @@ class BrewNoteTests(APITestCase):
 
         response = self.client.delete(self.brewnote_url)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        with self.assertRaises(BrewNote.DoesNotExist):
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        with pytest.raises(BrewNote.DoesNotExist):
             BrewNote.objects.get(pk=brewnote.pk)
+
+    def test_no_get_on_unowned_brewnote(self):
+        """Ensure someone can't get another's brewnote."""
+        # Arrange
+
+        different_user = User.objects.create(
+            username="someone_else", password="password"
+        )
+        token = Token.objects.create(user=different_user)
+
+        # clear the test user's auth
+        self.client.force_authenticate()
+        self.client.force_authenticate(user=different_user, token=token)
+
+        # Act
+        response = self.client.get(self.brewnote_url)
+
+        # Assert
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_no_patch_on_unowned_brewnote(self):
+        """Ensure someone can't put another's brewnote."""
+        # Arrange
+
+        different_user = User.objects.create(
+            username="someone_else", password="password"
+        )
+        token = Token.objects.create(user=different_user)
+
+        # clear the test user's auth
+        self.client.force_authenticate()
+        self.client.force_authenticate(user=different_user, token=token)
+
+        # Act
+        response = self.client.patch(
+            self.brewnote_url, {"body": "new body!"}, format="json"
+        )
+
+        # Assert
+        assert response.status_code == status.HTTP_404_NOT_FOUND
