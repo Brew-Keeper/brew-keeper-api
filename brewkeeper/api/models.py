@@ -1,8 +1,12 @@
-from django.db import models
+"""Models for the BrewKeeper app."""
+
 from django.contrib.auth.models import User
+from django.db import models
 
 
 class Recipe(models.Model):
+    """The recipe model."""
+
     created_on = models.DateTimeField(auto_now_add=True)
     last_brewed_on = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
@@ -16,8 +20,7 @@ class Recipe(models.Model):
     total_bean_amount = models.FloatField(blank=True, null=True)
     bean_units = models.CharField(max_length=12, blank=True, null=True)
     water_type = models.CharField(max_length=50, blank=True, null=True)
-    total_water_amount = models.PositiveSmallIntegerField(
-        blank=True, null=True)
+    total_water_amount = models.PositiveSmallIntegerField(blank=True, null=True)
     water_units = models.CharField(max_length=12, blank=True, null=True)
     temp = models.PositiveSmallIntegerField(blank=True, null=True)
     brew_count = models.PositiveIntegerField(default=0)
@@ -27,14 +30,17 @@ class Recipe(models.Model):
 
     def __str__(self):
         return "{} rated as: {}, bean: {} roast: {}".format(
-               self.title, self.rating, self.bean_name, self.roast)
+            self.title, self.rating, self.bean_name, self.roast
+        )
 
-    class Meta:
-        ordering = ['-rating']
-        default_related_name = 'recipes'
+    class Meta:  # noqa
+        ordering = ["-rating"]
+        default_related_name = "recipes"
 
 
 class Step(models.Model):
+    """Represents a step in a recipe."""
+
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     step_number = models.PositiveSmallIntegerField()
     step_title = models.CharField(max_length=50)
@@ -46,12 +52,14 @@ class Step(models.Model):
     def __str__(self):
         return self.step_title
 
-    class Meta:
-        ordering = ['step_number']
-        default_related_name = 'steps'
+    class Meta:  # noqa
+        ordering = ["step_number"]
+        default_related_name = "steps"
 
 
 class BrewNote(models.Model):
+    """Represents a note on a Recipe."""
+
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     body = models.TextField()
     timestamp = models.DateTimeField(auto_now=True)
@@ -59,42 +67,50 @@ class BrewNote(models.Model):
     def __str__(self):
         return "{}, added: {}".format(self.body, self.timestamp)
 
-    class Meta:
-        ordering = ['-timestamp']
-        default_related_name = 'brewnotes'
+    class Meta:  # noqa
+        ordering = ["-timestamp"]
+        default_related_name = "brewnotes"
 
 
 class PublicRating(models.Model):
+    """Represents a rating on a public Recipe."""
+
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     public_rating = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return "{} gave {} stars for {}".format(self.user.username,
-                                                self.public_rating,
-                                                self.recipe.title)
+        return "{} gave {} stars for {}".format(
+            self.user.username, self.public_rating, self.recipe.title
+        )
 
-    class Meta:
-        default_related_name = 'public_ratings'
-        unique_together = ('recipe', 'user')
+    class Meta:  # noqa
+        default_related_name = "public_ratings"
+        unique_together = ("recipe", "user")
 
 
 class PublicComment(models.Model):
+    """Represents a note on a public Recipe."""
+
     recipe = models.ForeignKey(Recipe, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     public_comment = models.TextField()
     comment_timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return "{} said {} about {} at {}".format(self.user.username,
-                                                  self.public_comment,
-                                                  self.recipe.title,
-                                                  self.comment_timestamp)
+        return "{} said {} about {} at {}".format(
+            self.user.username,
+            self.public_comment,
+            self.recipe.title,
+            self.comment_timestamp,
+        )
 
-    class Meta:
-        default_related_name = 'public_comments'
+    class Meta:  # noqa
+        default_related_name = "public_comments"
 
 
 class UserInfo(models.Model):
+    """Additional fields attached to a User."""
+
     user = models.OneToOneField(User, blank=True, null=True, on_delete=models.CASCADE)
     reset_string = models.CharField(max_length=27, blank=True, null=True)

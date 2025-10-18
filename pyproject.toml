@@ -41,6 +41,7 @@ ignore = [
     "B012",  # jump-statement-in-finally
     "B904",  # raise-without-from-inside-except
     "COM812",  # missing-trailing-comma
+    "D105",  # missing-docstring-in-magic-method
     "D107",  # missing-docstring-in-init
     "D200",  # fits-on-one-line
     "D205",  # blank-line-after-summary
