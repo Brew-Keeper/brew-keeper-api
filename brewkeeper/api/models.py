@@ -39,7 +39,7 @@ class Recipe(models.Model):
 
 
 class Step(models.Model):
-    """Represents a step in a recipe."""
+    """Represents a step in a Recipe."""
 
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     step_number = models.PositiveSmallIntegerField()
