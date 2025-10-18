@@ -15,8 +15,6 @@ from .helpers import authenticate_user
 creator_username = "donpablo"
 other_username = "not_the_creator"
 
-steps_endpoint = "/api/users/%s/recipes/{}/steps/" % creator_username
-
 status_201_or_404_test_cases = [
     # username, expected_status
     (  # 0 - creator User
@@ -54,6 +52,9 @@ status_204_or_404_test_cases = [
 ]
 
 
+steps_endpoint = "/api/users/%s/recipes/{}/steps/" % creator_username
+
+
 def step_url(step):
     return "{}{}/".format(steps_endpoint.format(step.recipe_id), step.pk)
 
@@ -69,6 +70,7 @@ class TestSteps:
         Step.objects.create(
             recipe=recipe, duration=10, step_number=1, step_title="Step 1"
         )
+
         User.objects.create(username=other_username, password="password")
 
     @pytest.mark.django_db

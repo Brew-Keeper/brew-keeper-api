@@ -8,14 +8,58 @@ from api.models import BrewNote, Recipe
 
 from .helpers import authenticate_user
 
-brewnotes_endpoint = "/api/users/donpablo/recipes/{}/brewnotes/"
+########################################
+# Parametrize Test Case Definitions
+########################################
+
+creator_username = "donpablo"
+other_username = "not_the_creator"
+
+status_201_or_404_test_cases = [
+    # username, expected_status
+    (  # 0 - creator User
+        creator_username,
+        status.HTTP_201_CREATED,
+    ),
+    (  # 1 - other User
+        other_username,
+        status.HTTP_404_NOT_FOUND,
+    ),
+]
+
+status_200_or_404_test_cases = [
+    # username, expected_status
+    (  # 0 - creator User
+        creator_username,
+        status.HTTP_200_OK,
+    ),
+    (  # 1 - other User
+        other_username,
+        status.HTTP_404_NOT_FOUND,
+    ),
+]
+
+status_204_or_404_test_cases = [
+    # username, expected_status
+    (  # 0 - creator User
+        creator_username,
+        status.HTTP_204_NO_CONTENT,
+    ),
+    (  # 1 - other User
+        other_username,
+        status.HTTP_404_NOT_FOUND,
+    ),
+]
+
+
+brewnotes_endpoint = "/api/users/%s/recipes/{}/brewnotes/" % creator_username
 
 
 class TestBrewNotes:
     """Tests for BrewNote API actions."""
 
     def setup_method(self):
-        user = User.objects.create(username="donpablo", password="password")
+        user = User.objects.create(username=creator_username, password="password")
         recipe = Recipe.objects.create(
             user=user, title="The Original", bean_name="Arabica"
         )
@@ -23,12 +67,16 @@ class TestBrewNotes:
         self.brewnote_url = "{}{}/".format(
             brewnotes_endpoint.format(brewnote.recipe_id), brewnote.pk
         )
+
+        User.objects.create(username=other_username, password="password")
         self.client = authenticate_user()
 
     @pytest.mark.django_db
-    def test_create_brewnote(self):
+    @pytest.mark.parametrize("username, expected_status", status_201_or_404_test_cases)
+    def test_create_brewnote(self, username, expected_status):
         """Ensure we can create a new BrewNote object."""
         # Arrange
+        self.client = authenticate_user(username=username)
         recipe = Recipe.objects.first()
         url = brewnotes_endpoint.format(recipe.pk)
         brewnote_body = "A test brewnote"
@@ -39,26 +87,34 @@ class TestBrewNotes:
         response = self.client.post(url, {"body": brewnote_body})
 
         # Assert
-        assert response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == expected_status
+        if expected_status != status.HTTP_201_CREATED:
+            return
         assert BrewNote.objects.filter(body=brewnote_body).count() == 1
 
     @pytest.mark.django_db
-    def test_get_brewnote(self):
+    @pytest.mark.parametrize("username, expected_status", status_200_or_404_test_cases)
+    def test_get_brewnote(self, username, expected_status):
         """Ensure we can read a BrewNote object."""
         # Arrange
+        self.client = authenticate_user(username=username)
         brewnote = BrewNote.objects.first()
 
         # Act
         response = self.client.get(self.brewnote_url)
 
         # Assert
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == expected_status
+        if expected_status != status.HTTP_200_OK:
+            return
         assert response.data["id"] == brewnote.pk
 
     @pytest.mark.django_db
-    def test_patch_brewnote(self):
+    @pytest.mark.parametrize("username, expected_status", status_200_or_404_test_cases)
+    def test_patch_brewnote(self, username, expected_status):
         """Ensure we can change a field in a BrewNote object."""
         # Arrange
+        self.client = authenticate_user(username=username)
         brewnote = BrewNote.objects.first()
         new_body = "A new brewnote body"
         assert brewnote.body != new_body
@@ -69,75 +125,26 @@ class TestBrewNotes:
         )
 
         # Assert
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == expected_status
+        if expected_status != status.HTTP_200_OK:
+            return
         brewnote.refresh_from_db()
         assert brewnote.body == new_body
 
     @pytest.mark.django_db
-    def test_delete_brewnote(self):
+    @pytest.mark.parametrize("username, expected_status", status_204_or_404_test_cases)
+    def test_delete_brewnote(self, username, expected_status):
         """Ensure we can delete a BrewNote object."""
         # Arrange
+        self.client = authenticate_user(username=username)
         brewnote = BrewNote.objects.first()
 
         # Act
         response = self.client.delete(self.brewnote_url)
 
         # Assert
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert response.status_code == expected_status
+        if expected_status != status.HTTP_204_NO_CONTENT:
+            return
         with pytest.raises(BrewNote.DoesNotExist):
             BrewNote.objects.get(pk=brewnote.pk)
-
-    @pytest.mark.django_db
-    def test_no_get_on_unowned_brewnote(self):
-        """Ensure someone can't get another's brewnote."""
-        # Arrange
-
-        # make unrelated User
-        other_username = "someone_else"
-        User.objects.create(username=other_username, password="password")
-        self.client = authenticate_user(other_username)
-
-        # Act
-        response = self.client.get(self.brewnote_url)
-
-        # Assert
-        assert response.status_code == status.HTTP_404_NOT_FOUND
-
-    @pytest.mark.django_db
-    def test_no_patch_on_unowned_brewnote(self):
-        """Ensure someone can't put another's brewnote."""
-        # Arrange
-
-        # make unrelated User
-        other_username = "someone_else"
-        User.objects.create(username=other_username, password="password")
-        self.client = authenticate_user(other_username)
-
-        # Act
-        response = self.client.patch(
-            self.brewnote_url, {"body": "new body!"}, format="json"
-        )
-
-        # Assert
-        assert response.status_code == status.HTTP_404_NOT_FOUND
-
-    @pytest.mark.django_db
-    def test_cannot_create_on_unowned_recipe(self):
-        """Ensure someone can't create a brewnote another's recipe."""
-        # Arrange
-        # get an existing recipe
-        recipe = Recipe.objects.first()
-        url = brewnotes_endpoint.format(recipe.pk)
-
-        # make unrelated User
-        other_username = "someone_else"
-        User.objects.create(username=other_username, password="password")
-        self.client = authenticate_user(other_username)
-
-        # Act
-        response = self.client.post(
-            url, {"body": "I should not be able to post this"}, format="json"
-        )
-
-        # Assert
-        assert response.status_code == status.HTTP_404_NOT_FOUND
