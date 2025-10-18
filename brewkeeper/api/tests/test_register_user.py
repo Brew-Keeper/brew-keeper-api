@@ -1,8 +1,8 @@
 """Tests of register_user view method."""
 
 from django.test import Client
-from rest_framework import status
 import pytest
+from rest_framework import status
 
 from api.models import User
 
@@ -32,7 +32,7 @@ bad_input_test_cases = [
 class TestRegisterUser:
     """Tests of register_user view method."""
 
-    @pytest.mark.django_db()
+    @pytest.mark.django_db
     @pytest.mark.parametrize(
         "username, password, email, expected_err_text", bad_input_test_cases
     )
@@ -52,7 +52,7 @@ class TestRegisterUser:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.text == expected_err_text
 
-    @pytest.mark.django_db()
+    @pytest.mark.django_db
     def test_taken_username(self):
         """Ensure we can't register with an existing username."""
         # Arrange
@@ -73,7 +73,7 @@ class TestRegisterUser:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.text == "That username is already in the database."
 
-    @pytest.mark.django_db()
+    @pytest.mark.django_db
     def test_can_create(self):
         """Ensure that someone can register."""
         # Act
