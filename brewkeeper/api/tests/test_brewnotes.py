@@ -74,7 +74,7 @@ class TestBrewNotes:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_201_or_404_test_cases)
     def test_create_brewnote(self, username, expected_status):
-        """Ensure we can create a new BrewNote object."""
+        """Ensure only creator can create a new BrewNote object."""
         # Arrange
         self.client = authenticate_user(username=username)
         recipe = Recipe.objects.first()
@@ -95,7 +95,7 @@ class TestBrewNotes:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_200_or_404_test_cases)
     def test_get_brewnote(self, username, expected_status):
-        """Ensure we can read a BrewNote object."""
+        """Ensure only creator can read a BrewNote object."""
         # Arrange
         self.client = authenticate_user(username=username)
         brewnote = BrewNote.objects.first()
@@ -112,7 +112,9 @@ class TestBrewNotes:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_200_or_404_test_cases)
     def test_patch_brewnote(self, username, expected_status):
-        """Ensure we can change a field in a BrewNote object."""
+        """
+        Ensure only creator can change a field in a BrewNote object.
+        """
         # Arrange
         self.client = authenticate_user(username=username)
         brewnote = BrewNote.objects.first()
@@ -134,7 +136,7 @@ class TestBrewNotes:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_204_or_404_test_cases)
     def test_delete_brewnote(self, username, expected_status):
-        """Ensure we can delete a BrewNote object."""
+        """Ensure only creator can delete a BrewNote object."""
         # Arrange
         self.client = authenticate_user(username=username)
         brewnote = BrewNote.objects.first()

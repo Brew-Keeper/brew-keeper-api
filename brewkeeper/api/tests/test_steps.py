@@ -76,7 +76,7 @@ class TestSteps:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_201_or_404_test_cases)
     def test_create_step(self, username, expected_status):
-        """Ensure we can create a new Step object."""
+        """Ensure only creator can create a new Step object."""
         # Arrange
         self.client = authenticate_user(username=username)
         recipe = Recipe.objects.first()
@@ -104,6 +104,8 @@ class TestSteps:
     def test_create_reorders_step(self, username, expected_status):
         """
         Ensure new Step with duplicate step_number reorders the others.
+
+        Creator only!
         """
         # Arrange
         self.client = authenticate_user(username=username)
@@ -142,7 +144,7 @@ class TestSteps:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_200_or_404_test_cases)
     def test_get_step(self, username, expected_status):
-        """Ensure we can read a Step object."""
+        """Ensure only creator can read a Step object."""
         # Arrange
         self.client = authenticate_user(username=username)
         step = Step.objects.first()
@@ -161,6 +163,8 @@ class TestSteps:
     def test_patch_reorders_step(self, username, expected_status):
         """
         Ensure Steps reorder when patched step_number overlaps existing.
+
+        Creator only!
         """
         # Arrange
         self.client = authenticate_user(username=username)
@@ -196,7 +200,7 @@ class TestSteps:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_204_or_404_test_cases)
     def test_delete_step(self, username, expected_status):
-        """Ensure we can delete a Step object."""
+        """Ensure only creator can delete a Step object."""
         # Arrange
         self.client = authenticate_user(username=username)
         step = Step.objects.first()
@@ -214,7 +218,11 @@ class TestSteps:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_204_or_404_test_cases)
     def test_delete_middle_step(self, username, expected_status):
-        """Ensure deleting a middle Step properly reorders remaining."""
+        """
+        Ensure deleting a middle Step properly reorders remaining.
+
+        Creator only!
+        """
         # Arrange
         self.client = authenticate_user(username=username)
         recipe = Recipe.objects.first()

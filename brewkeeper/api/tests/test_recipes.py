@@ -74,7 +74,7 @@ class TestRecipes:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_200_or_404_test_cases)
     def test_get_recipe(self, username, expected_status):
-        """Ensure we can read a Recipe object."""
+        """Ensure only creator can read a Recipe object."""
         # Arrange
         self.client = authenticate_user(username=username)
         recipe = Recipe.objects.first()
@@ -91,7 +91,7 @@ class TestRecipes:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_200_or_404_test_cases)
     def test_patch_recipe(self, username, expected_status):
-        """Ensure we can change a field in a Recipe object."""
+        """Ensure only creator can change a field in a Recipe object."""
         # Arrange
         self.client = authenticate_user(username=username)
         recipe = Recipe.objects.get(title="The Original")
@@ -113,7 +113,7 @@ class TestRecipes:
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_204_or_404_test_cases)
     def test_delete_recipe(self, username, expected_status):
-        """Ensure we can delete a Recipe object."""
+        """Ensure only creator can delete a Recipe object."""
         # Arrange
         self.client = authenticate_user(username=username)
         recipe = Recipe.objects.get(title="The Original")
