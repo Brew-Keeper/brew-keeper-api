@@ -6,6 +6,10 @@ from rest_framework import status
 
 from api.models import User
 
+########################################
+# Parametrize Test Case Definitions
+########################################
+
 bad_input_test_cases = [
     # username, password, email, expected_err_text
     (  # 0 - Username has '.'
