@@ -1,9 +1,8 @@
-"""Tests for BrewNotes."""
+"""Tests for BrewNote API actions."""
 
 from django.contrib.auth.models import User
 import pytest
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from api.models import BrewNote, Recipe
 
@@ -12,10 +11,10 @@ from .helpers import authenticate_user
 brewnotes_endpoint = "/api/users/donpablo/recipes/{}/brewnotes/"
 
 
-class BrewNoteTests(APITestCase):
-    """Tests for BrewNotes."""
+class TestBrewNotes:
+    """Tests for BrewNote API actions."""
 
-    def setUp(self):
+    def setup_method(self):
         user = User.objects.create(username="donpablo", password="password")
         recipe = Recipe.objects.create(
             user=user, title="The Original", bean_name="Arabica"
@@ -26,6 +25,7 @@ class BrewNoteTests(APITestCase):
         )
         self.client = authenticate_user()
 
+    @pytest.mark.django_db
     def test_create_brewnote(self):
         """Ensure we can create a new BrewNote object."""
         # Arrange
@@ -42,6 +42,7 @@ class BrewNoteTests(APITestCase):
         assert response.status_code == status.HTTP_201_CREATED
         assert BrewNote.objects.filter(body=brewnote_body).count() == 1
 
+    @pytest.mark.django_db
     def test_get_brewnote(self):
         """Ensure we can read a BrewNote object."""
         # Arrange
@@ -54,6 +55,7 @@ class BrewNoteTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data["id"] == brewnote.pk
 
+    @pytest.mark.django_db
     def test_patch_brewnote(self):
         """Ensure we can change a field in a BrewNote object."""
         # Arrange
@@ -71,6 +73,7 @@ class BrewNoteTests(APITestCase):
         brewnote.refresh_from_db()
         assert brewnote.body == new_body
 
+    @pytest.mark.django_db
     def test_delete_brewnote(self):
         """Ensure we can delete a BrewNote object."""
         # Arrange
@@ -84,6 +87,7 @@ class BrewNoteTests(APITestCase):
         with pytest.raises(BrewNote.DoesNotExist):
             BrewNote.objects.get(pk=brewnote.pk)
 
+    @pytest.mark.django_db
     def test_no_get_on_unowned_brewnote(self):
         """Ensure someone can't get another's brewnote."""
         # Arrange
@@ -99,6 +103,7 @@ class BrewNoteTests(APITestCase):
         # Assert
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    @pytest.mark.django_db
     def test_no_patch_on_unowned_brewnote(self):
         """Ensure someone can't put another's brewnote."""
         # Arrange
@@ -116,6 +121,7 @@ class BrewNoteTests(APITestCase):
         # Assert
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    @pytest.mark.django_db
     def test_cannot_create_on_unowned_recipe(self):
         """Ensure someone can't create a brewnote another's recipe."""
         # Arrange

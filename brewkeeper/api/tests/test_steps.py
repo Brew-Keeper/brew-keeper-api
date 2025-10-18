@@ -1,4 +1,4 @@
-"""Tests for Step actions."""
+"""Tests for Step API actions."""
 
 from django.contrib.auth.models import User
 import pytest
@@ -59,7 +59,7 @@ def step_url(step):
 
 
 class TestSteps:
-    """Tests for Step actions."""
+    """Tests for Step API actions."""
 
     def setup_method(self):
         user = User.objects.create(username=creator_username, password="password")
