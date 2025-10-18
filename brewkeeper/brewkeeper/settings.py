@@ -22,6 +22,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+FRONTEND_DOMAIN = os.getenv("FRONTEND_DOMAIN", "https://brewkeeper-52a9a.firebaseapp.com")
+
+MAILGUN_KEY = os.environ.get("MAILGUN_KEY")
+MAILGUN_USER = os.environ.get("MAILGUN_USER", "sandbox014f80db3f0b441e94e5a6faff21f392.mailgun.org")
+
 # Application definition
 INSTALLED_APPS = (
     "django.contrib.admin",
