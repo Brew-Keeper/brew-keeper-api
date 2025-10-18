@@ -31,10 +31,12 @@ class StepTests(APITestCase):
 
     def test_create_step(self):
         """Ensure we can create a new Step object."""
+        # Arrange
         recipe = Recipe.objects.first()
         url = steps_endpoint.format(recipe.pk)
         assert recipe.steps.count() == 1
 
+        # Act
         response = self.client.post(
             url,
             {
@@ -44,11 +46,15 @@ class StepTests(APITestCase):
             },
         )
 
+        # Assert
         assert response.status_code == status.HTTP_201_CREATED
         assert recipe.steps.count() == 2
 
     def test_create_reorders_step(self):
-        """Ensure new Step with duplicate step_number reorders the others."""
+        """
+        Ensure new Step with duplicate step_number reorders the others.
+        """
+        # Arrange
         recipe = Recipe.objects.first()
         assert recipe.steps.count() == 1
         first_step = recipe.steps.first()
@@ -60,6 +66,7 @@ class StepTests(APITestCase):
         )
         url = steps_endpoint.format(recipe.pk)
 
+        # Act
         response = self.client.post(
             url,
             {
@@ -69,6 +76,7 @@ class StepTests(APITestCase):
             },
         )
 
+        # Assert
         assert response.status_code == status.HTTP_201_CREATED
         first_step.refresh_from_db()
         middle_step.refresh_from_db()
@@ -79,31 +87,40 @@ class StepTests(APITestCase):
 
     def test_get_step(self):
         """Ensure we can read a Step object."""
+        # Arrange
         step = Step.objects.first()
 
+        # Act
         response = self.client.get(step_url(step))
 
+        # Assert
         assert response.status_code == status.HTTP_200_OK
         assert response.data["id"] == step.pk
 
     def test_patch_step(self):
         """Ensure we can change a field in a Step object."""
+        # Arrange
         step = Step.objects.first()
         new_duration = 18
         assert step.duration != new_duration
 
+        # Act
         response = self.client.patch(
             step_url(step),
             {"duration": new_duration, "step_number": 1, "step_title": "Step 1"},
             format="json",
         )
 
+        # Assert
         assert response.status_code == status.HTTP_200_OK
         step.refresh_from_db()
         assert step.duration == new_duration
 
     def test_patch_reorders_step(self):
-        """Ensure Steps reorder when patched step_number overlaps existing."""
+        """
+        Ensure Steps reorder when patched step_number overlaps existing.
+        """
+        # Arrange
         recipe = Recipe.objects.first()
         assert recipe.steps.count() == 1
         first_step = recipe.steps.first()
@@ -115,12 +132,14 @@ class StepTests(APITestCase):
             recipe=recipe, duration=10, step_number=3, step_title="Step 3"
         )
 
+        # Act
         response = self.client.patch(
             step_url(middle_step),
             {"duration": 10, "step_number": 1, "step_title": "Was Step 2"},
             format="json",
         )
 
+        # Assert
         assert response.status_code == status.HTTP_200_OK
         first_step.refresh_from_db()
         middle_step.refresh_from_db()
@@ -131,16 +150,20 @@ class StepTests(APITestCase):
 
     def test_delete_step(self):
         """Ensure we can delete a Step object."""
+        # Arrange
         step = Step.objects.first()
 
+        # Act
         response = self.client.delete(step_url(step))
 
+        # Assert
         assert response.status_code == status.HTTP_204_NO_CONTENT
         with pytest.raises(Step.DoesNotExist):
             Step.objects.get(pk=step.pk)
 
     def test_delete_middle_step(self):
         """Ensure deleting a middle Step properly reorders remaining."""
+        # Arrange
         recipe = Recipe.objects.first()
         middle_step = Step.objects.create(
             recipe=recipe, duration=10, step_number=2, step_title="Step 2"
@@ -149,8 +172,10 @@ class StepTests(APITestCase):
             recipe=recipe, duration=10, step_number=3, step_title="Step 3"
         )
 
+        # Act
         response = self.client.delete(step_url(middle_step))
 
+        # Assert
         assert response.status_code == status.HTTP_204_NO_CONTENT
         end_step.refresh_from_db()
         assert end_step.step_number == 2

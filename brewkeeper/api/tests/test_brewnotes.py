@@ -3,7 +3,6 @@
 from django.contrib.auth.models import User
 import pytest
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
 from api.models import BrewNote, Recipe
@@ -35,9 +34,6 @@ class BrewNoteTests(APITestCase):
         brewnote_body = "A test brewnote"
         with pytest.raises(BrewNote.DoesNotExist):
             BrewNote.objects.get(body=brewnote_body)
-
-        token, _ = Token.objects.get_or_create(user=recipe.user)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
 
         # Act
         response = self.client.post(url, {"body": brewnote_body})
@@ -92,14 +88,10 @@ class BrewNoteTests(APITestCase):
         """Ensure someone can't get another's brewnote."""
         # Arrange
 
-        different_user = User.objects.create(
-            username="someone_else", password="password"
-        )
-        token = Token.objects.create(user=different_user)
-
-        # clear the test user's auth
-        self.client.force_authenticate()
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        # make unrelated User
+        other_username = "someone_else"
+        User.objects.create(username=other_username, password="password")
+        self.client = authenticate_user(other_username)
 
         # Act
         response = self.client.get(self.brewnote_url)
@@ -111,14 +103,10 @@ class BrewNoteTests(APITestCase):
         """Ensure someone can't put another's brewnote."""
         # Arrange
 
-        different_user = User.objects.create(
-            username="someone_else", password="password"
-        )
-        token = Token.objects.create(user=different_user)
-
-        # clear the test user's auth
-        self.client.force_authenticate()
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        # make unrelated User
+        other_username = "someone_else"
+        User.objects.create(username=other_username, password="password")
+        self.client = authenticate_user(other_username)
 
         # Act
         response = self.client.patch(
@@ -135,15 +123,10 @@ class BrewNoteTests(APITestCase):
         recipe = Recipe.objects.first()
         url = brewnotes_endpoint.format(recipe.pk)
 
-        # create a new user who couldn't have created it
-        different_user = User.objects.create(
-            username="someone_else", password="password"
-        )
-        token = Token.objects.create(user=different_user)
-
-        # clear the test user's auth, then set it
-        self.client.force_authenticate(user=None)
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        # make unrelated User
+        other_username = "someone_else"
+        User.objects.create(username=other_username, password="password")
+        self.client = authenticate_user(other_username)
 
         # Act
         response = self.client.post(
