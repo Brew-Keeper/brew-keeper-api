@@ -5,8 +5,7 @@ import pytest
 from rest_framework import status
 
 from api.models import Recipe, Step
-
-from .helpers import authenticate_user
+from api.tests.helpers import authenticate_user
 
 ########################################
 # Parametrize Test Case Definitions
