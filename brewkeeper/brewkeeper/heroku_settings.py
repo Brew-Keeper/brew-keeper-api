@@ -1,29 +1,32 @@
-from .settings import *
+"""Settings to use in production Heroku deploy."""
+
 import os
+
 import dj_database_url
 
-DEBUG = bool(int(os.environ.get('DEBUG', False)))
-SECRET_KEY = os.environ['SECRET_KEY']
+from .settings import *  # noqa
 
-BLACKLIST_APPS = ['debugtoolbar', 'django_extensions']
+DEBUG = bool(int(os.environ.get("DEBUG", "")))
+SECRET_KEY = os.environ["SECRET_KEY"]
 
-INSTALLED_APPS = tuple([app for app in INSTALLED_APPS
-                        if app not in BLACKLIST_APPS])
+BLACKLIST_APPS = ["debugtoolbar", "django_extensions"]
 
-DATABASES['default'] = dj_database_url.config()
+INSTALLED_APPS = tuple(
+    [app for app in INSTALLED_APPS if app not in BLACKLIST_APPS]  # noqa
+)
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+DATABASES["default"] = dj_database_url.config()  # noqa
 
-ALLOWED_HOSTS = ['*']
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+ALLOWED_HOSTS = ["*"]
 
 # Static asset configuration
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = "staticfiles"
 # STATIC_ROOT = os.path.join(os.getcwd(), "staticfiles")
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.django.GzipManifestStaticFilesStorage"
