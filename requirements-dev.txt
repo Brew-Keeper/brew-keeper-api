@@ -1,5 +1,6 @@
 -r requirements.txt
 
+django-types==0.22.0
 isort==7.0.0
 pytest==8.4.2
 pytest-django==4.11.1
