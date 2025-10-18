@@ -5,6 +5,7 @@ import pytest
 from rest_framework import status
 
 from api.models import Recipe
+from api.serializers import RecipeDetailSerializer
 from api.tests.helpers import authenticate_user
 
 ########################################
@@ -69,6 +70,7 @@ class TestRecipes:
         # Assert
         assert response.status_code == status.HTTP_201_CREATED
         assert Recipe.objects.filter(title=title).count() == 1
+        assert list(response.json().keys()) == [*RecipeDetailSerializer.Meta.fields]
 
     @pytest.mark.django_db
     @pytest.mark.parametrize("username, expected_status", status_200_or_404_test_cases)
