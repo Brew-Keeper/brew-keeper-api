@@ -70,7 +70,7 @@ public_step_test_cases = [
     (  # 3 - non-public url, no username
         creator_username,  # url_username
         None,  # auth_username
-        status.HTTP_404_NOT_FOUND,  # expected_status
+        status.HTTP_401_UNAUTHORIZED,  # expected_status
     ),
 ]
 

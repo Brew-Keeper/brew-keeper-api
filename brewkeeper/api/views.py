@@ -19,6 +19,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 import requests
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -53,6 +54,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return user.recipes.all().prefetch_related(
                 "public_comments", "public_ratings", "steps"
             )
+        if not self.request.user.is_authenticated:
+            raise NotAuthenticated("Authentication credentials were not provided.")
         return self.request.user.recipes.all().prefetch_related("steps", "brewnotes")
 
     def get_serializer_context(self):  # noqa
@@ -86,6 +89,8 @@ class StepViewSet(viewsets.ModelViewSet):
             and self.kwargs["user_username"] == "public"
         ) or recipe.user == self.request.user:
             return Step.objects.all().filter(recipe=recipe)
+        if not self.request.user.is_authenticated:
+            raise NotAuthenticated("Authentication credentials were not provided.")
         raise Http404
 
     def get_serializer_context(self):  # noqa
