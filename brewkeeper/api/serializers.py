@@ -177,11 +177,11 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
             "shared_by",
         )
 
-    def get_public_ratings(self, obj: Recipe):
+    def get_public_ratings(self, obj: dict):
         """
         Get the User's PublicRating for the Recipe in question.
 
-        :param obj: Recipe The Recipe in question
+        :param obj: dict The Recipe in question
         :return: dict The serialized ratings
         """
         try:
@@ -192,9 +192,12 @@ class PublicRecipeListSerializer(serializers.HyperlinkedModelSerializer):
         except PublicRating.DoesNotExist:
             return {}
 
-    def get_combined_rating(self, obj: Recipe):
+    def get_combined_rating(self, obj: dict) -> float:
         """
         Get the User's PublicRating for the Recipe in question.
+
+        :param obj: dict The Recipe in question
+        :return: float The average rating
         """
         try:
             user = self.context["request"].user
