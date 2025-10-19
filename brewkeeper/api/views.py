@@ -430,7 +430,7 @@ and paste it into the Reset String field at: {reset_link}
     )
     if response.status_code != status.HTTP_200_OK:
         raise IntegrationError(f"mail sending status code: {response.status_code}")
-    return Response(status=response.status_code)
+    return HttpResponse()
 
 
 @api_view(["POST"])
