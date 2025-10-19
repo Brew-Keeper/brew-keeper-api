@@ -50,6 +50,30 @@ status_204_or_404_test_cases = [
     ),
 ]
 
+public_step_test_cases = [
+    # url_username, auth_username, expected_status
+    (  # 0 - public url, has username
+        "public",  # url_username
+        creator_username,  # auth_username
+        status.HTTP_200_OK,  # expected_status
+    ),
+    (  # 1 - public url, no username
+        "public",  # url_username
+        None,  # auth_username
+        status.HTTP_200_OK,  # expected_status
+    ),
+    (  # 2 - non-public url, has username
+        creator_username,  # url_username
+        creator_username,  # auth_username
+        status.HTTP_404_NOT_FOUND,  # expected_status
+    ),
+    (  # 3 - non-public url, no username
+        creator_username,  # url_username
+        None,  # auth_username
+        status.HTTP_404_NOT_FOUND,  # expected_status
+    ),
+]
+
 
 steps_endpoint = "/api/users/%s/recipes/{}/steps/" % creator_username
 
@@ -241,3 +265,30 @@ class TestSteps:
             return
         end_step.refresh_from_db()
         assert end_step.step_number == 2
+
+    @pytest.mark.django_db
+    @pytest.mark.parametrize(
+        "url_username, auth_username, expected_status", public_step_test_cases
+    )
+    def test_public_step_get(self, url_username, auth_username, expected_status):
+        """
+        We should only show steps on public recipes if recipe is public
+        and requested as public.
+        """
+        # Arrange
+        public_user = User.objects.create(username="public", password="password")
+        recipe = Recipe.objects.create(
+            user=public_user, title="The Original, Public", bean_name="Arabica"
+        )
+        step = Step.objects.create(
+            recipe=recipe, duration=10, step_number=1, step_title="Step 1"
+        )
+        self.client = authenticate_user(auth_username)
+
+        # Act
+        response = self.client.get(
+            f"/api/users/{url_username}/recipes/{recipe.pk}/steps/{step.pk}/"
+        )
+
+        # Assert
+        assert response.status_code == expected_status

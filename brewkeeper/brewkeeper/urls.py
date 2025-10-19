@@ -20,39 +20,40 @@ from django.urls import include, re_path
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework_nested import routers
 
+# top-level router
 router = routers.SimpleRouter()
 router.register(r"users", api_views.UserViewSet, basename="users")
 
+# recipes router
 recipes_router = routers.NestedSimpleRouter(router, r"users", lookup="user")
-
 recipes_router.register(r"recipes", api_views.RecipeViewSet, basename="recipe_list")
 
+# steps router
 recipes_steps_router = routers.NestedSimpleRouter(
     recipes_router, r"recipes", lookup="recipe"
 )
-
 recipes_steps_router.register(r"steps", api_views.StepViewSet, basename="step_list")
 
+# brewnotes router
 recipes_brewnotes_router = routers.NestedSimpleRouter(
     recipes_router, r"recipes", lookup="recipe"
 )
-
 recipes_brewnotes_router.register(
     r"brewnotes", api_views.BrewNoteViewSet, basename="brewnote_list"
 )
 
+# ratings router
 recipes_ratings_router = routers.NestedSimpleRouter(
     recipes_router, r"recipes", lookup="recipe"
 )
-
 recipes_ratings_router.register(
     r"ratings", api_views.PublicRatingViewSet, basename="public_ratings"
 )
 
+# comments router
 recipes_comments_router = routers.NestedSimpleRouter(
     recipes_router, r"recipes", lookup="recipe"
 )
-
 recipes_comments_router.register(
     r"comments", api_views.PublicCommentViewSet, basename="public_comments"
 )
@@ -75,9 +76,6 @@ urlpatterns = [
     re_path(r"^api/get-reset/$", api_views.send_reset_string, name="get_reset"),
     re_path(r"^api/reset-pw/$", api_views.reset_password, name="reset_password"),
     re_path(r"^api/whoami/$", api_views.whoami, name="who-am-i"),
-    # Don's stuff
-    re_path(r"^api/users/don\.pablo/", include(recipes_ratings_router.urls)),
-    re_path(r"^api/users/don\.pablo/", include(recipes_comments_router.urls)),
     # REST Framework
     re_path(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

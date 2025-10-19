@@ -41,16 +41,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
         "=shared_by",
     )
     ordering_fields = ("rating", "brew_count", "created_on")
+    permission_classes = []
 
     def get_queryset(self):  # noqa
         if (
             self.kwargs["user_username"] == "public"
             and self.request.method in permissions.SAFE_METHODS
         ):
-            return (
-                User.objects.get(username="public")
-                .recipes.all()
-                .prefetch_related("public_comments", "public_ratings", "steps")
+            user = User.objects.get(username="public")
+            self.request.user = user
+            return user.recipes.all().prefetch_related(
+                "public_comments", "public_ratings", "steps"
             )
         return self.request.user.recipes.all().prefetch_related("steps", "brewnotes")
 
@@ -75,14 +76,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class StepViewSet(viewsets.ModelViewSet):
     """The class controlling views of Steps."""
 
+    permission_classes = []
     serializer_class = api_serializers.StepSerializer
 
     def get_queryset(self):  # noqa
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
-        if recipe.user == self.request.user or (
+        if (
             recipe.user.username == "public"
             and self.kwargs["user_username"] == "public"
-        ):
+        ) or recipe.user == self.request.user:
             return Step.objects.all().filter(recipe=recipe)
         raise Http404
 
