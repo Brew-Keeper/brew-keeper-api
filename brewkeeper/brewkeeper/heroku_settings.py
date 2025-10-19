@@ -6,7 +6,7 @@ import dj_database_url
 
 from .settings import *  # noqa
 
-DEBUG = bool(int(os.environ.get("DEBUG", "")))
+DEBUG = bool(int(os.environ.get("DEBUG", "0")))
 SECRET_KEY = os.environ["SECRET_KEY"]
 
 BLACKLIST_APPS = ["debugtoolbar", "django_extensions"]
