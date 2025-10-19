@@ -79,7 +79,10 @@ class StepViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):  # noqa
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
-        if recipe.user == self.request.user or recipe.user.username == "public":
+        if recipe.user == self.request.user or (
+            recipe.user.username == "public"
+            and self.kwargs["user_username"] == "public"
+        ):
             return Step.objects.all().filter(recipe=recipe)
         raise Http404
 
