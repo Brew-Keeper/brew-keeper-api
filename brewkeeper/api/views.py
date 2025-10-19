@@ -24,7 +24,6 @@ from rest_framework.response import Response
 
 from . import serializers as api_serializers
 from .models import BrewNote, PublicComment, PublicRating, Recipe, Step, UserInfo
-from .permissions import IsAskerOrPublic
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -40,7 +39,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         "=shared_by",
     )
     ordering_fields = ("rating", "brew_count", "created_on")
-    permission_classes = (IsAskerOrPublic,)
 
     def get_queryset(self):  # noqa
         if (
@@ -76,11 +74,10 @@ class StepViewSet(viewsets.ModelViewSet):
     """The class controlling views of Steps."""
 
     serializer_class = api_serializers.StepSerializer
-    # permission_classes = (IsAskerOrPublic,)
 
     def get_queryset(self):  # noqa
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
-        if recipe.user == self.request.user:
+        if recipe.user == self.request.user or recipe.user.username == "public":
             return Step.objects.all().filter(recipe=recipe)
         raise Http404
 
@@ -277,7 +274,7 @@ def whoami(request: HttpRequest):
 
 
 @api_view(["POST"])
-@permission_classes((AllowAny,))
+@permission_classes([AllowAny])
 def register_user(request: HttpRequest):
     """Add a new user to the system."""
     username = request.data["username"]
@@ -363,7 +360,7 @@ def login_user(request: HttpRequest):
 
 
 @api_view(["POST"])
-@permission_classes((IsAuthenticated,))
+@permission_classes([IsAuthenticated])
 def change_password(request: HttpRequest):
     """Allow Logged in user to change their password."""
     username = request.data["username"]
@@ -463,7 +460,7 @@ def reset_password(request: HttpRequest):
 
 
 @api_view(["POST"])
-@permission_classes((IsAuthenticated,))
+@permission_classes([IsAuthenticated])
 def logout_user(request: HttpRequest):
     """Logout a currently logged in User."""
     Token.objects.get(user=request.user).delete()
