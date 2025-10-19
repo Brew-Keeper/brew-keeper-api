@@ -1,4 +1,4 @@
-"""Models for the BrewKeeper app."""
+"""Models for the BrewKeeper API app."""
 
 from django.contrib.auth.models import User
 from django.db import models

@@ -1,5 +1,5 @@
 """
-The views for the BrewKeeper app.
+The views for the BrewKeeper API app.
 
 This has all of the custom classes and functions used by the urls.py
 endpoints.
@@ -11,6 +11,7 @@ import re
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import Avg, Sum
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
@@ -22,8 +23,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from . import serializers as api_serializers
-from .models import BrewNote, PublicComment, PublicRating, Recipe, Step, UserInfo
+from api import serializers as api_serializers
+from api.exceptions import IntegrationError
+from api.models import BrewNote, PublicComment, PublicRating, Recipe, Step, UserInfo
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -86,6 +88,7 @@ class StepViewSet(viewsets.ModelViewSet):
         context["recipe_id"] = self.kwargs["recipe_pk"]
         return context
 
+    @transaction.atomic
     def perform_create(self, serializer: api_serializers.StepSerializer):
         """Update total duration and rearrange steps if necessary"""
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
@@ -106,6 +109,7 @@ class StepViewSet(viewsets.ModelViewSet):
         recipe.total_duration = total["duration__sum"]
         recipe.save()
 
+    @transaction.atomic
     def perform_update(self, serializer: api_serializers.StepSerializer):
         """Rearrange steps if necessary."""
         instance = self.get_object()
@@ -139,6 +143,7 @@ class StepViewSet(viewsets.ModelViewSet):
         instance.recipe.total_duration = total["duration__sum"]
         instance.recipe.save()
 
+    @transaction.atomic
     def perform_destroy(self, instance: Step):  # noqa
         if instance.recipe.user != self.request.user:
             raise Http404
@@ -198,6 +203,7 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
         context["username"] = self.request.user.username
         return context
 
+    @transaction.atomic
     def perform_create(self, serializer: api_serializers.PublicRatingSerializer):
         """
         Create public rating, then update the public average rating.
@@ -209,6 +215,7 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
         recipe.average_rating = rating_calc["public_rating__avg"]
         recipe.save()
 
+    @transaction.atomic
     def perform_update(self, serializer: api_serializers.PublicRatingSerializer):
         """
         Update public rating, then update the public average rating.
@@ -219,6 +226,7 @@ class PublicRatingViewSet(viewsets.ModelViewSet):
         instance.recipe.average_rating = rating_calc["public_rating__avg"]
         instance.recipe.save()
 
+    @transaction.atomic
     def perform_destroy(self, instance: BrewNote):
         """
         Delete public rating, then update the public average rating.
@@ -275,6 +283,7 @@ def whoami(request: HttpRequest):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@transaction.atomic
 def register_user(request: HttpRequest):
     """Add a new user to the system."""
     username = request.data["username"]
@@ -361,6 +370,7 @@ def login_user(request: HttpRequest):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+@transaction.atomic
 def change_password(request: HttpRequest):
     """Allow Logged in user to change their password."""
     username = request.data["username"]
@@ -380,6 +390,7 @@ def change_password(request: HttpRequest):
 
 @api_view(["POST"])
 @permission_classes((AllowAny,))
+@transaction.atomic
 def send_reset_string(request: HttpRequest):
     """
     Email user a random_string with which to reset a forgotten password.
@@ -417,11 +428,14 @@ and paste it into the Reset String field at: {reset_link}
             """.strip(),
         },
     )
+    if response.status_code != status.HTTP_200_OK:
+        raise IntegrationError(f"mail sending status code: {response.status_code}")
     return Response(status=response.status_code)
 
 
 @api_view(["POST"])
 @permission_classes((AllowAny,))
+@transaction.atomic
 def reset_password(request: HttpRequest):
     """Email reset_string to create a new password."""
     new_password = request.data["new_password"]

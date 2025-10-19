@@ -1,4 +1,4 @@
-"""Serializers for the BrewKeeper app."""
+"""Serializers for the BrewKeeper API app."""
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
