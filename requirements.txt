@@ -1,5 +1,5 @@
 dj-database-url==3.0.1
-Django==5.2.7
+Django==5.2.8
 django-cors-headers==4.9.0
 djangorestframework==3.16.1
 drf-nested-routers==0.95.0
