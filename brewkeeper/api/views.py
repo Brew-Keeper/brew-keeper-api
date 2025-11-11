@@ -50,7 +50,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             and self.request.method in permissions.SAFE_METHODS
         ):
             user = User.objects.get(username="public")
-            self.request.user = user
+            # Don't overwrite request.user - preserve authenticated user for serializer
             return user.recipes.all().prefetch_related(
                 "public_comments", "public_ratings", "steps"
             )
