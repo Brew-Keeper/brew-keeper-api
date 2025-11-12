@@ -102,7 +102,14 @@ class StepViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer: api_serializers.StepSerializer):
         """Update total duration and rearrange steps if necessary"""
         recipe = get_object_or_404(Recipe, pk=self.kwargs["recipe_pk"])
-        if recipe.user != self.request.user:
+        # Allow creating steps if: user owns recipe OR recipe is public
+        # and shared_by matches user
+        is_owner = recipe.user == self.request.user
+        is_public_sharer = (
+            recipe.user.username == "public"
+            and recipe.shared_by == self.request.user.username
+        )
+        if not (is_owner or is_public_sharer):
             raise Http404
         existing_steps = recipe.steps.all().order_by("step_number")
 
@@ -123,7 +130,14 @@ class StepViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer: api_serializers.StepSerializer):
         """Rearrange steps if necessary."""
         instance = self.get_object()
-        if instance.recipe.user != self.request.user:
+        # Allow updating steps if: user owns recipe OR recipe is public
+        # and shared_by matches user
+        is_owner = instance.recipe.user == self.request.user
+        is_public_sharer = (
+            instance.recipe.user.username == "public"
+            and instance.recipe.shared_by == self.request.user.username
+        )
+        if not (is_owner or is_public_sharer):
             raise Http404
         new_step_num = int(serializer.initial_data["step_number"])
         if instance.step_number != new_step_num:
